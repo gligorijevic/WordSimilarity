@@ -22,9 +22,9 @@ public class Main {
     public static void main(String[] args) {
         try {
             // TODO code application logic here
-            boolean check = N3toCSVParser.checkMultiplePredicts("E:\\Semantic web baze\\DBPedia datasets\\disambiguations_en2.ttl");
+            boolean check = N3toCSVParser.checkMultiplePredicts("C:\\Users\\Jelena\\Desktop\\homepages_en.ttl");
             System.out.println(check);
-            N3toCSVParser.parse("E:\\Semantic web baze\\DBPedia datasets\\disambiguations_en2.ttl",check);
+            N3toCSVParser.parse("C:\\Users\\Jelena\\Desktop\\homepages_en.ttl",check);
         } catch (FileNotFoundException ex) {
             Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
