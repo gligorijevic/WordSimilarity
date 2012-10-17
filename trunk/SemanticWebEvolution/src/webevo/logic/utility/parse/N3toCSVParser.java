@@ -33,6 +33,7 @@ public class N3toCSVParser {
         HashMap<Integer, String> objects = new HashMap<>();
 
         String currentSubject = null;
+        String lastSubject = null;
         if (!hasMultiplePredicts) {
             while ((line = bufRdr.readLine()) != null) {
                 String[] elementsInLine = line.split(">");
@@ -44,6 +45,7 @@ public class N3toCSVParser {
 
                     // erase http://dbpedia.org/resource/
                     String substringedSubject = elementsInLine[0].trim().substring(1);
+                    lastSubject = substringedSubject;
 
                     if (!substringedSubject.equals(currentSubject)) {
                         String lastObjectName = currentSubject;
@@ -82,6 +84,33 @@ public class N3toCSVParser {
                     }
                 }
             }
+            String lastObjectName = currentSubject;
+            String coolSubject = null;
+            if (lastObjectName != null) {
+                coolSubject = lastObjectName.replaceFirst("http://dbpedia.org/resource/", "");
+            }
+            currentSubject = lastSubject;
+
+            if (predicts.size() > 0 && lastObjectName != null && coolSubject != null) {
+                out.write(coolSubject);
+                out.write(",");
+                for (int i = 0; i < predicts.size(); i++) {
+                    if (objects.containsKey(i)) {
+                        out.write(parseObjectValue(objects.get(i)));
+                    } else {
+                        out.write("");
+                    }
+
+                    if (i != predicts.size() - 1) {
+                        out.write(",");
+                    }
+                }
+            }
+            if (lastObjectName != null) {
+                out.write("\r\n");
+            }
+
+            out.flush();
             bufRdr.close();
 
             StringBuilder builder = new StringBuilder();
@@ -101,10 +130,13 @@ public class N3toCSVParser {
                 String[] elementsInLine = line.split(">");
                 if (elementsInLine[0].trim().startsWith("<")) {
                     String substringedPredict = elementsInLine[1].trim().substring(1);
+                    if ((!predicts.contains(substringedPredict) && elementsInLine[0].trim().substring(1).equals(currentSubject)) || (!predicts.contains(substringedPredict) && currentSubject == null)) {
+                        predicts.add(substringedPredict + (objectIndex) + (++noOfPredictsPerObject));
+                    }
 
                     // erase http://dbpedia.org/resource/
                     String substringedSubject = elementsInLine[0].trim().substring(1);
-
+                    lastSubject = substringedSubject;
                     if (!substringedSubject.equals(currentSubject)) {
                         String lastObjectName = currentSubject;
                         String coolSubject = null;
@@ -138,35 +170,59 @@ public class N3toCSVParser {
                         objects.clear();
 
                         if (!objects.containsKey(0)) {
-                            objects.put(predicts.indexOf(substringedPredict + (objectIndex) + (++noOfPredictsPerObject)), elementsInLine[2].trim() + ">");
+                            objects.put(predicts.indexOf(substringedPredict + (objectIndex) + (noOfPredictsPerObject)), elementsInLine[2].trim());
                         }
                     } else {
-                        objects.put(predicts.indexOf(substringedPredict + (objectIndex) + (++noOfPredictsPerObject)), elementsInLine[2].trim()); //parse String
+                        objects.put(predicts.indexOf(substringedPredict + (objectIndex) + (noOfPredictsPerObject)), elementsInLine[2].trim()); //parse String
                     }
 
-                    if (!predicts.contains(substringedPredict)) {
-                        predicts.add(substringedPredict + (objectIndex) + (++noOfPredictsPerObject));
-                    }
 
-                    }
                 }
-                bufRdr.close();
-
-                StringBuilder builder = new StringBuilder();
-                for (int i = 0; i < predicts.size(); i++) {
-                    builder.append(predicts.get(i));
-                    if (i != predicts.size() - 1) {
-                        builder.append(",");
-                    }
-                }
-                System.out.println(builder.toString());
-                out.write("subject," + builder.toString());
             }
-            out.flush();
-            out.close();
-        }
+            String lastObjectName = currentSubject;
+            String coolSubject = null;
+            if (lastObjectName != null) {
+                coolSubject = lastObjectName.replaceFirst("http://dbpedia.org/resource/", "");
+            }
+            currentSubject = lastSubject;
 
-    
+            if (predicts.size() > 0 && lastObjectName != null && coolSubject != null) {
+                out.write(coolSubject);
+                out.write(",");
+                for (int i = 0; i < predicts.size(); i++) {
+                    if (objects.containsKey(i)) {
+                        out.write(parseObjectValue(objects.get(i)));
+                    } else {
+                        out.write("");
+                    }
+
+                    if (i != predicts.size() - 1) {
+                        out.write(",");
+                    }
+                }
+                noOfPredictsPerObject = 0;
+                objectIndex++;
+            }
+            if (lastObjectName != null) {
+                out.write("\r\n");
+            }
+
+            out.flush();
+            bufRdr.close();
+
+            StringBuilder builder = new StringBuilder();
+            for (int i = 0; i < predicts.size(); i++) {
+                builder.append(predicts.get(i));
+                if (i != predicts.size() - 1) {
+                    builder.append(",");
+                }
+            }
+            System.out.println(builder.toString());
+            out.write("subject," + builder.toString());
+        }
+        out.flush();
+        out.close();
+    }
 
     private static String parseObjectValue(String name) {
         if (name.length() <= 2) {
@@ -176,13 +232,13 @@ public class N3toCSVParser {
 //                return "";
 //            }
             //return name.substring(1, name.length() - 1);
-            String a = name.substring(1, name.length() - 1);
+            String a = name.substring(1, name.length());
             if (a.contains("\"")) {
 //                System.out.println(a);
                 if (a.indexOf("\"") == 0) {
                     return "";
                 }
-                return a.substring(0, a.indexOf("\"") - 1);
+                return a.substring(0, a.indexOf("\""));
             } else {
                 return a;
             }
