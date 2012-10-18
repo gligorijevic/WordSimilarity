@@ -130,7 +130,7 @@ public class N3toCSVParser {
                 String[] elementsInLine = line.split(">");
                 if (elementsInLine[0].trim().startsWith("<")) {
                     String substringedPredict = elementsInLine[1].trim().substring(1);
-                    if ((!predicts.contains(substringedPredict) && elementsInLine[0].trim().substring(1).equals(currentSubject)) || (!predicts.contains(substringedPredict) && currentSubject == null)) {
+                    if ((!predicts.contains(substringedPredict) && elementsInLine[0].trim().substring(1).equals(currentSubject)) || (!predicts.contains(substringedPredict) && currentSubject == null) || (!predicts.contains(substringedPredict) && !elementsInLine[0].trim().substring(1).equals(currentSubject) && currentSubject != null)) {
                         predicts.add(substringedPredict + (objectIndex) + (++noOfPredictsPerObject));
                     }
 
@@ -159,8 +159,7 @@ public class N3toCSVParser {
                                     out.write(",");
                                 }
                             }
-                            noOfPredictsPerObject = 0;
-                            objectIndex++;
+                            
                         }
                         if (lastObjectName != null) {
                             out.write("\r\n");
@@ -172,10 +171,11 @@ public class N3toCSVParser {
                         if (!objects.containsKey(0)) {
                             objects.put(predicts.indexOf(substringedPredict + (objectIndex) + (noOfPredictsPerObject)), elementsInLine[2].trim());
                         }
+                        noOfPredictsPerObject = objectIndex;
+                        objectIndex++;
                     } else {
                         objects.put(predicts.indexOf(substringedPredict + (objectIndex) + (noOfPredictsPerObject)), elementsInLine[2].trim()); //parse String
                     }
-
 
                 }
             }
