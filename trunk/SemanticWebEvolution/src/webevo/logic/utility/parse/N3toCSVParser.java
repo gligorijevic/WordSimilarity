@@ -27,7 +27,7 @@ public class N3toCSVParser {
         BufferedReader bufRdr = new BufferedReader(new FileReader(n3file));
         PrintWriter out = null;
         System.out.println(n3file.getPath());
-        out = new PrintWriter(new OutputStreamWriter(new FileOutputStream(n3file.getPath() + ".csv")));
+        out = new PrintWriter(new OutputStreamWriter(new FileOutputStream(n3file.getPath().substring(0, n3file.getPath().length() - 4) + ".csv")));
         String line = null;
         ArrayList<String> predicts = new ArrayList<>();
         HashMap<Integer, String> objects = new HashMap<>();
@@ -159,7 +159,7 @@ public class N3toCSVParser {
                                     out.write(",");
                                 }
                             }
-                            
+
                         }
                         if (lastObjectName != null) {
                             out.write("\r\n");
@@ -237,9 +237,15 @@ public class N3toCSVParser {
 //                System.out.println(a);
                 if (a.indexOf("\"") == 0) {
                     return "";
+                } else if (a.contains(">")) {
+                    a = a.substring(0, a.length() - 1);
+                } else {
+                    return a.substring(0, a.indexOf("\""));
                 }
-                return a.substring(0, a.indexOf("\""));
             } else {
+                if (a.contains(">")) {
+                    a = a.substring(0, a.length() - 1);
+                }
                 return a;
             }
         }
