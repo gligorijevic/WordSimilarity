@@ -12,7 +12,7 @@ import webevo.domain.mapper.WordTypeOntology;
  *
  * @author Djordje
  */
-public class LeakokChodorow {
+public class LeakokChodorow extends WordSimilarityMeasure{
     
         protected static double min = 0; // or -Double.MAX_VALUE ?
         protected static double max = Double.MAX_VALUE;
@@ -75,7 +75,7 @@ public class LeakokChodorow {
                 return score;
         }
         
-        public List<char[]> getPOSPairs() {
+        public List<char[]> getWordTypes() {
                 return posPairs;
         }
 
