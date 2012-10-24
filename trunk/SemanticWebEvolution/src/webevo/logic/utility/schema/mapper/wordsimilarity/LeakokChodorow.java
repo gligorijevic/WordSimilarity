@@ -6,6 +6,7 @@ package webevo.logic.utility.schema.mapper.wordsimilarity;
 
 import java.util.ArrayList;
 import java.util.List;
+import webevo.domain.mapper.WordTypeOntology;
 
 /**
  *
@@ -17,9 +18,9 @@ public class LeakokChodorow {
         protected static double max = Double.MAX_VALUE;
 
         @SuppressWarnings("serial")
-        private static List<POS[]> posPairs = new ArrayList<POS[]>(){{
-                add(new POS[]{POS.n,POS.n});
-                add(new POS[]{POS.v,POS.v});
+        private static List<char[]> posPairs = new ArrayList<char[]>(){{
+                add(new char[]{WordTypeOntology.noun,WordTypeOntology.noun});
+                add(new char[]{WordTypeOntology.verb,WordTypeOntology.verb});
         }};
         
         public LeacockChodorow(ILexicalDatabase db) {
