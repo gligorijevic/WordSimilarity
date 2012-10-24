@@ -29,7 +29,7 @@ public class LeakokChodorow {
         }
 
         @Override
-        protected Relatedness calcRelatedness( Concept synset1, Concept synset2 ) {
+        protected double calcRelatedness( Concept synset1, Concept synset2 ) {
                 StringBuilder tracer = new StringBuilder();
                 if ( synset1 == null || synset2 == null ) return new Relatedness( min, null, illegalSynset );
                 //Don't short-circuit!
@@ -41,9 +41,9 @@ public class LeakokChodorow {
                 
                 //TODO: investigate if these values are always valid for wn-jpn-0.9.0
                 int maxDepth = 1;
-                if ( synset1.getPos().equals( POS.n ) ) {
+                if ( synset1.getPos().equals( WordTypeOntology.noun ) ) {
                         maxDepth = 20;
-                } else if ( synset1.getPos().equals( POS.v ) ) {
+                } else if ( synset1.getPos().equals( WordTypeOntology.verb ) ) {
                         maxDepth = 14;
                 }
                 
@@ -71,11 +71,11 @@ public class LeakokChodorow {
                         }
                 }
                                 
-                return new Relatedness( score, tracer.toString(), null );
+//                return new Relatedness( score, tracer.toString(), null );
+                return score;
         }
         
-        @Override
-        public List<POS[]> getPOSPairs() {
+        public List<char[]> getPOSPairs() {
                 return posPairs;
         }
 
