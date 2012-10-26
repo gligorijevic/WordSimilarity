@@ -47,7 +47,7 @@ public class WordSimilarity {
         
         public static void main(String[] args) {
                 long t0 = System.currentTimeMillis();
-                calculateSimilarities( "Similarity","Disambiguation" );
+                calculateSimilarities( "Metric","Asymetric" );
                 long t1 = System.currentTimeMillis();
                 System.out.println( "Done in "+(t1-t0)+" msec." );
                 System.out.println("Max: " + Double.MAX_VALUE);
