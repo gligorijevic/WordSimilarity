@@ -10,6 +10,7 @@ package org.webevo.domain.mapper.wordsimilarity;
  */
 public abstract class CharNode {
     protected char value;
+    protected int nodeLevel;
 
     /**
      * @return the value
@@ -24,6 +25,21 @@ public abstract class CharNode {
     public void setValue(char value) {
         this.value = value;
     }
+
+    /**
+     * @return the nodeLevel
+     */
+    public int getNodeLevel() {
+        return nodeLevel;
+    }
+
+    /**
+     * @param nodeLevel the nodeLevel to set
+     */
+    public void setNodeLevel(int nodeLevel) {
+        this.nodeLevel = nodeLevel;
+    }
+    
     
     
 }

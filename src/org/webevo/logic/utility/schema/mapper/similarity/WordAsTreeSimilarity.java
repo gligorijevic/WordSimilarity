@@ -5,6 +5,7 @@
 package org.webevo.logic.utility.schema.mapper.similarity;
 
 import org.webevo.domain.mapper.wordsimilarity.BinaryCharNode;
+import org.webevo.domain.mapper.wordsimilarity.CharNode;
 
 /**
  *
@@ -12,17 +13,17 @@ import org.webevo.domain.mapper.wordsimilarity.BinaryCharNode;
  */
 public interface WordAsTreeSimilarity {
     
-    public BinaryCharNode createWordTree();
+    public void createWordTree(int i, int j, CharNode dummy, char[] charArray);
     
-    public double calcSimilarSubtrees(BinaryCharNode cn);
+    public double calcSimilarSubtrees(CharNode cn1, CharNode cn2);
     
-    public double calcFirstLevelSimilarity(BinaryCharNode cn);
+    public double calcFirstLevelSimilarity(CharNode cn1, CharNode cn2);
     
-    public double calcTreeStructureSimilarity(BinaryCharNode cn);
+    public double calcTreeStructureSimilarity(CharNode cn1, CharNode cn2);
     
-    public int countNodesInTree(BinaryCharNode cn);
+    public int countNodesInTree(CharNode cn);
     
-    public int countTreeDepth(BinaryCharNode cn);
+    public int countTreeDepth(CharNode cn);
     
     public void killStructure();
 }

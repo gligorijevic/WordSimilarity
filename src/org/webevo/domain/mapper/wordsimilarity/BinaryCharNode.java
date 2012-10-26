@@ -15,6 +15,13 @@ public class BinaryCharNode extends CharNode{
     public BinaryCharNode(char value) {
         this.value = value;
     }
+
+    public BinaryCharNode(char value, int nodeLevel) {
+        this.value = value;
+        this.nodeLevel = nodeLevel;
+    }
+
+    
     
     public BinaryCharNode(char value, BinaryCharNode leftChild, BinaryCharNode rightChar) {
         this.value = value;
