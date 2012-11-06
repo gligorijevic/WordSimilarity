@@ -239,12 +239,18 @@ public class N3toCSVParser {
                     return "";
                 } else if (a.contains(">")) {
                     a = a.substring(0, a.length() - 1);
+                    if (a.endsWith("/")) {
+                        a = a.substring(0, a.length() - 1);
+                    }
                 } else {
                     return a.substring(0, a.indexOf("\""));
                 }
             } else {
                 if (a.contains(">")) {
                     a = a.substring(0, a.length() - 1);
+                    if (a.endsWith("/")) {
+                        a = a.substring(0, a.length() - 1);
+                    }
                 }
                 return a;
             }
