@@ -24,6 +24,8 @@ public class WordSimilarityThreshold {
 
     private static double labelThreshold;
     private static double dataThreshold;
+    private static int columnNumber = 0;
+    private static int rowsNumber = 0;
     private static ArrayList<String> schemaClassesWords = new ArrayList<>();
     private static ArrayList<String> schemaPropertiesWords = new ArrayList<>();
     private static ArrayList<String> DBPediaClassesWords = new ArrayList<>();
@@ -34,11 +36,11 @@ public class WordSimilarityThreshold {
 
         File DBPediaCSVDataset = new File(dbPediaDatasetPath);
         File SchemaDataset;
-        String name = dbPediaDatasetPath.substring(dbPediaDatasetPath.lastIndexOf("\\")+1,dbPediaDatasetPath.lastIndexOf("."));
+        String name = dbPediaDatasetPath.substring(dbPediaDatasetPath.lastIndexOf("\\") + 1, dbPediaDatasetPath.lastIndexOf("."));
         System.out.println(name);
-        PrintWriter writer = new PrintWriter(new BufferedWriter(new FileWriter("threshold for "+name+".txt")));
-        
-        
+        PrintWriter writer = new PrintWriter(new BufferedWriter(new FileWriter("threshold for " + name + ".txt")));
+
+
         BufferedReader bufRdr = new BufferedReader(new FileReader(DBPediaCSVDataset));
 
 
@@ -54,7 +56,7 @@ public class WordSimilarityThreshold {
         in2.close();
         fileInProperties.close();
         System.out.println("File schemaorgallproperties.out was loaded successfully");
-        
+
         String line = null;
         String[] lineItems = null;
         while ((line = bufRdr.readLine()) != null) {
@@ -75,14 +77,14 @@ public class WordSimilarityThreshold {
             for (String wordToMap : lineItems) {
                 DBPediaPropertiesWords.add(wordToMap);
             }
-
+            columnNumber = lineItems.length;
         }
         bufRdr.close();
         double calc = 0;
         if (DBPediaPropertiesWords != null) {
             ArrayList<String> words = new ArrayList<>();
             for (int i = 0; i < DBPediaPropertiesWords.size(); i++) {
-                for (int j = i + 1; j < DBPediaPropertiesWords.size(); j = j + lineItems.length) {
+                for (int j = i + 1; j < DBPediaPropertiesWords.size(); j = j + columnNumber) {
                     if (DBPediaPropertiesWords.get(i) != null || !DBPediaPropertiesWords.get(i).equals("")) {
                         words.add(DBPediaPropertiesWords.get(i));
                     }
@@ -90,11 +92,11 @@ public class WordSimilarityThreshold {
                 calc += WordSimilarity.calculateThreshold(DBPediaPropertiesWords, schemaPropertiesWords);
             }
         }
-        dataThreshold = calc / lineItems.length;
+        dataThreshold = calc / columnNumber;
         System.out.println("Threshold for data in " + name + " file is: " + dataThreshold);
         writer.println("Threshold for data in " + name + " file is: " + dataThreshold);
         writer.flush();
         writer.close();
-        
+
     }
 }
