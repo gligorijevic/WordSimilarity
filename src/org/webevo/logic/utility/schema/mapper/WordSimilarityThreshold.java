@@ -5,10 +5,12 @@
 package org.webevo.logic.utility.schema.mapper;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.PrintWriter;
@@ -28,12 +30,15 @@ public class WordSimilarityThreshold {
     private static ArrayList<String> DBPediaPropertiesWords = new ArrayList<>();
     private static ArrayList<String> GuessedWords = new ArrayList<>();
 
-    public static void mapWord(String dbPediaDatasetPath) throws FileNotFoundException, IOException, ClassNotFoundException {
+    public static void calculateThreshold(String dbPediaDatasetPath) throws FileNotFoundException, IOException, ClassNotFoundException {
 
         File DBPediaCSVDataset = new File(dbPediaDatasetPath);
         File SchemaDataset;
-        PrintWriter writer = new PrintWriter(new File("Threshold for "+dbPediaDatasetPath));
-
+        String name = dbPediaDatasetPath.substring(dbPediaDatasetPath.lastIndexOf("\\")+1,dbPediaDatasetPath.lastIndexOf("."));
+        System.out.println(name);
+        PrintWriter writer = new PrintWriter(new BufferedWriter(new FileWriter("threshold for "+name+".txt")));
+        
+        
         BufferedReader bufRdr = new BufferedReader(new FileReader(DBPediaCSVDataset));
 
 
@@ -49,7 +54,7 @@ public class WordSimilarityThreshold {
         in2.close();
         fileInProperties.close();
         System.out.println("File schemaorgallproperties.out was loaded successfully");
-        //Get DBPedia words and guesses words
+        
         String line = null;
         String[] lineItems = null;
         while ((line = bufRdr.readLine()) != null) {
@@ -61,8 +66,8 @@ public class WordSimilarityThreshold {
                         DBPediaClassesWords.add(string);
                     }
                     labelThreshold = WordSimilarity.calculateThreshold(DBPediaClassesWords, schemaClassesWords);
-                    System.out.println("Threshold for label in " + dbPediaDatasetPath + " file is: " + labelThreshold);
-                    writer.write("Threshold for label in " + dbPediaDatasetPath + " file is: " + labelThreshold);
+                    System.out.println("Threshold for label in " + name + " file is: " + labelThreshold);
+                    writer.println("Threshold for label in " + name + " file is: " + labelThreshold);
                 }
             }
 
@@ -86,9 +91,10 @@ public class WordSimilarityThreshold {
             }
         }
         dataThreshold = calc / lineItems.length;
-        System.out.println("Threshold for data in " + dbPediaDatasetPath + " file is: " + dataThreshold);
-        writer.write("Threshold for data in " + dbPediaDatasetPath + " file is: " + dataThreshold);
-        
+        System.out.println("Threshold for data in " + name + " file is: " + dataThreshold);
+        writer.println("Threshold for data in " + name + " file is: " + dataThreshold);
+        writer.flush();
+        writer.close();
         
     }
 }

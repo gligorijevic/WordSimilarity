@@ -5,7 +5,9 @@
 package org.webevo.gui.forms;
 
 import javax.swing.JPanel;
+import org.webevo.gui.controllers.ControllerUI_ThresholdCalculator;
 import org.webevo.gui.controllers.ControllerUI_WordsMapper;
+import org.webevo.gui.panels.mapper.PanelCalculateThreshold;
 import org.webevo.gui.panels.mapper.PanelMapWordsTable;
 
 /**
@@ -60,6 +62,11 @@ public class MainForm extends javax.swing.JFrame {
         jMenu4.add(miViewWords);
 
         miMeasureThreshold.setText(" Measure Threshold");
+        miMeasureThreshold.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                miMeasureThresholdActionPerformed(evt);
+            }
+        });
         jMenu4.add(miMeasureThreshold);
 
         jMenuBar2.add(jMenu4);
@@ -77,6 +84,15 @@ public class MainForm extends javax.swing.JFrame {
 //        ControllerUI_Main.getInstance().setActivePanel(activePanel);
         setActivePanel(mapWords);
     }//GEN-LAST:event_miMapWordsActionPerformed
+
+    private void miMeasureThresholdActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_miMeasureThresholdActionPerformed
+        ControllerUI_ThresholdCalculator tc = new ControllerUI_ThresholdCalculator();
+        PanelCalculateThreshold calculateThreshold = new PanelCalculateThreshold();
+        tc.setPanelCalculateThreshold(calculateThreshold);
+        calculateThreshold.setController(tc);
+        
+        setActivePanel(calculateThreshold);
+    }//GEN-LAST:event_miMeasureThresholdActionPerformed
 
     /**
      * @param args the command line arguments

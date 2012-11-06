@@ -32,7 +32,7 @@ public class Main {
                 //            System.out.println(check);
                 //            N3toCSVParser.parse("E:\\Semantic web baze\\DBPedia datasets\\homepages_en_sample.ttl",check);
                 ////            SampleN3Data.createSample("E:\\Semantic web baze\\DBPedia datasets\\homepages_en.ttl",2000);
-                WordSimilarityThreshold.mapWord("E:\\Semantic web baze\\DBPedia datasets\\homepages_en_sample.csv");
+                WordSimilarityThreshold.calculateThreshold("E:\\Semantic web baze\\DBPedia datasets\\homepages_en_sample.csv");
             } catch (ClassNotFoundException ex) {
                 Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
             }
