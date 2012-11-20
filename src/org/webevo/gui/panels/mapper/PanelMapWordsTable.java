@@ -4,7 +4,12 @@
  */
 package org.webevo.gui.panels.mapper;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
 import org.webevo.gui.controllers.ControllerUI_WordsMapper;
 import org.webevo.logic.utility.filefilter.SemanticDataFileFilter;
 
@@ -50,6 +55,7 @@ public class PanelMapWordsTable extends javax.swing.JPanel {
         jLabel4 = new javax.swing.JLabel();
         txtFiledIndex = new javax.swing.JTextField();
         txtFieldTreshold = new javax.swing.JTextField();
+        btnLoadPrecalculatedThresholdValues = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
         tblWordData = new javax.swing.JTable();
 
@@ -109,6 +115,13 @@ public class PanelMapWordsTable extends javax.swing.JPanel {
 
         jLabel4.setText("Word Similarity Threshold: ");
 
+        btnLoadPrecalculatedThresholdValues.setText("Load precalculated threshold values");
+        btnLoadPrecalculatedThresholdValues.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnLoadPrecalculatedThresholdValuesActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -116,10 +129,6 @@ public class PanelMapWordsTable extends javax.swing.JPanel {
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                        .addComponent(txtFieldFile, javax.swing.GroupLayout.PREFERRED_SIZE, 354, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jButton1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addComponent(jButton2)
@@ -146,7 +155,13 @@ public class PanelMapWordsTable extends javax.swing.JPanel {
                                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addComponent(txtFieldTreshold)
                                     .addComponent(txtFiledIndex))))
-                        .addGap(0, 0, Short.MAX_VALUE)))
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                            .addComponent(btnLoadPrecalculatedThresholdValues, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(txtFieldFile, javax.swing.GroupLayout.DEFAULT_SIZE, 354, Short.MAX_VALUE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jButton1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
@@ -156,7 +171,9 @@ public class PanelMapWordsTable extends javax.swing.JPanel {
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jButton1)
                     .addComponent(txtFieldFile, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 18, 18)
+                .addGap(4, 4, 4)
+                .addComponent(btnLoadPrecalculatedThresholdValues)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel1)
                     .addComponent(rbSubject)
@@ -196,19 +213,25 @@ public class PanelMapWordsTable extends javax.swing.JPanel {
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addComponent(jScrollPane1)
+            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 493, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED, 14, Short.MAX_VALUE)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 326, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        controller.getFileChooser();
+        try {
+            controller.getFileChooser();
+        } catch (FileNotFoundException ex) {
+            JOptionPane.showMessageDialog(this, ex);
+        } catch (IOException ex) {
+            JOptionPane.showMessageDialog(this, ex);
+        }
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
@@ -228,9 +251,20 @@ public class PanelMapWordsTable extends javax.swing.JPanel {
     private void rbObjectActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rbObjectActionPerformed
         controller.checkMappingType();
     }//GEN-LAST:event_rbObjectActionPerformed
+
+    private void btnLoadPrecalculatedThresholdValuesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLoadPrecalculatedThresholdValuesActionPerformed
+        try {
+            controller.getPrecalculatedThresholdValues();
+        } catch (FileNotFoundException ex) {
+            JOptionPane.showMessageDialog(this, "File with precalculated threshold values has not been found. Please Use calculate threshold function to create needed file.");
+        } catch (IOException ex) {
+            JOptionPane.showMessageDialog(this, ex);
+        }
+    }//GEN-LAST:event_btnLoadPrecalculatedThresholdValuesActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.ButtonGroup btnGroupIsUrl;
     private javax.swing.ButtonGroup btnGroupMappingType;
+    private javax.swing.JButton btnLoadPrecalculatedThresholdValues;
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
     private javax.swing.JLabel jLabel1;
@@ -466,8 +500,6 @@ public class PanelMapWordsTable extends javax.swing.JPanel {
     public javax.swing.JTextField getTxtFiledIndex() {
         return txtFiledIndex;
     }
-
-
 
     /**
      * @return the txtFieldFile

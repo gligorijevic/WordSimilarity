@@ -11,6 +11,7 @@ import java.util.logging.Logger;
 import org.webevo.logic.utility.Utility;
 import org.webevo.logic.utility.parse.N3toCSVParser;
 import org.webevo.logic.utility.sample.SampleN3Data;
+import org.webevo.logic.utility.schema.mapper.N3DataToSchemaMapper;
 import org.webevo.logic.utility.schema.mapper.SerializeSchemaData;
 import org.webevo.logic.utility.schema.mapper.WordSimilarity;
 import org.webevo.logic.utility.schema.mapper.WordSimilarityThreshold;
@@ -32,7 +33,8 @@ public class Main {
                 //            System.out.println(check);
                 //            N3toCSVParser.parse("E:\\Semantic web baze\\DBPedia datasets\\homepages_en_sample.ttl",check);
                 ////            SampleN3Data.createSample("E:\\Semantic web baze\\DBPedia datasets\\homepages_en.ttl",2000);
-                WordSimilarityThreshold.calculateThreshold("E:\\Semantic web baze\\DBPedia datasets\\homepages_en_sample.csv");
+//                WordSimilarityThreshold.calculateThreshold("E:\\Semantic web baze\\DBPedia datasets\\homepages_en_sample.csv");
+                N3DataToSchemaMapper.mapAndSaveCSVFile("E:\\Semantic web baze\\DBPedia datasets\\homepages_en_sample.csv", 0.023867366324182057);
             } catch (ClassNotFoundException ex) {
                 Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
             }

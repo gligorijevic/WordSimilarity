@@ -4,7 +4,9 @@
  */
 package org.webevo.gui.controllers;
 
+import java.io.BufferedReader;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -34,6 +36,10 @@ public class ControllerUI_WordsMapper {
     private String dbPediaDatasetPath;
     private int columnIndex;
     private double threshold;
+    private String fileName;
+    private double labelThreshold;
+    private double propertiesDataThreshold;
+    private double classDataThreshold;
 
     public ControllerUI_WordsMapper() {
     }
@@ -58,10 +64,10 @@ public class ControllerUI_WordsMapper {
         clearSelections();
     }
 
-    public void getFileChooser() {
+    public void getFileChooser() throws FileNotFoundException, IOException {
         JFileChooser chooser = new JFileChooser();
         chooser.setDialogTitle("Select .csv file to map");
-        chooser.addChoosableFileFilter(new SemanticDataFileFilter());
+//        chooser.addChoosableFileFilter(new SemanticDataFileFilter());
         chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
         chooser.setAcceptAllFileFilterUsed(false);
         FileNameExtensionFilter csvfilter = new FileNameExtensionFilter("csv files (*.csv)", "csv");
@@ -73,6 +79,7 @@ public class ControllerUI_WordsMapper {
             setDbPediaDatasetPath(chooser.getSelectedFile().getAbsolutePath());
             panelMapWordsTable.getTxtFieldFile().setText(chooser.getSelectedFile().getAbsolutePath());
         }
+        fileName = chooser.getSelectedFile().getAbsolutePath();
     }
 
     public void setValuesToGUI() {
@@ -152,9 +159,9 @@ public class ControllerUI_WordsMapper {
             }
         } else if (isSubject()) {
             columnIndex = 0;
-        }else {
-                columnIndex = Integer.parseInt(panelMapWordsTable.getTxtFiledIndex().getText().trim());
-            }
+        } else {
+            columnIndex = Integer.parseInt(panelMapWordsTable.getTxtFiledIndex().getText().trim());
+        }
     }
 
     private void clearSelections() {
@@ -164,11 +171,44 @@ public class ControllerUI_WordsMapper {
         panelMapWordsTable.getBtnGroupMappingType().clearSelection();
     }
 
+    //TODO DEBUG
     public void checkMappingType() {
         if (!panelMapWordsTable.getRbObject().isSelected()) {
             panelMapWordsTable.getTxtFiledIndex().setEditable(false);
+            if (panelMapWordsTable.getRbPredicate().isSelected()) {
+                setThresholdField(propertiesDataThreshold);
+            } else if (panelMapWordsTable.getRbSubject().isSelected()) {
+                setThresholdField(classDataThreshold);
+            }
         } else {
+            if (panelMapWordsTable.getRbObject().isSelected()) {
+                setThresholdField(classDataThreshold);
+            }
             panelMapWordsTable.getTxtFiledIndex().setEditable(true);
+        }
+
+
+    }
+
+    //TODO DEBUG
+    private void setThresholdField(double value) {
+        if (labelThreshold != 0 || classDataThreshold != 0 && propertiesDataThreshold != 0) {
+            panelMapWordsTable.getTxtFieldTreshold().setText(String.valueOf(value));
+        }
+    }
+
+    public void getPrecalculatedThresholdValues() throws FileNotFoundException, IOException {
+        String file = fileName.substring(fileName.lastIndexOf("\\") + 1, fileName.length() - 4);
+        BufferedReader br = new BufferedReader(new FileReader("threshold for " + file + ".txt"));
+
+        String line = br.readLine();
+        while (line != null && !line.equals("")) {
+            labelThreshold = Double.parseDouble(line.substring(line.lastIndexOf(":") + 1, line.length() - 1).trim());
+            line = br.readLine();
+            classDataThreshold = Double.parseDouble(line.substring(line.lastIndexOf(":") + 1, line.length() - 1).trim());
+            line = br.readLine();
+            propertiesDataThreshold = Double.parseDouble(line.substring(line.lastIndexOf(":") + 1, line.length() - 1).trim());
+            line = br.readLine();
         }
     }
 
