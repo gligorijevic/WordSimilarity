@@ -1,2 +1,3 @@
-Threshold for label in homepages_en_sample file is: Infinity
-Threshold for data in homepages_en_sample file is: Infinity
+Threshold for label in homepages_en_sample file is: 0.04364964722998127
+Threshold for classes data in homepages_en_sample file is: 0.023867366324182057
+Threshold for properties data in homepages_en_sample file is: 0.0

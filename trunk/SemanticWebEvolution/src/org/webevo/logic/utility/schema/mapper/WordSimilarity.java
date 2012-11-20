@@ -51,17 +51,18 @@ public class WordSimilarity {
         double treshold = 0;
         for (String DBPediaWord : DBPediaWords) {
             for (String SchemaWord : SchemaWords) {
-                treshold = treshold + calculateSimilarities(DBPediaWord, DBPediaWord);
+                treshold = treshold + calculateSimilarities(DBPediaWord, SchemaWord);
             }
         }
         treshold = treshold / (DBPediaWords.size() * SchemaWords.size());
         return treshold;
     }
-//        public static void main(String[] args) {
-//                long t0 = System.currentTimeMillis();
-//                calculateSimilarities( "Metric","Asymetric" );
-//                long t1 = System.currentTimeMillis();
-//                System.out.println( "Done in "+(t1-t0)+" msec." );
-//                System.out.println("Max: " + Double.MAX_VALUE);
-//        }
+
+    public static void main(String[] args) {
+        long t0 = System.currentTimeMillis();
+        calculateSimilarities("A", "A");
+        long t1 = System.currentTimeMillis();
+        System.out.println("Done in " + (t1 - t0) + " msec.");
+        System.out.println("Max: " + Double.MAX_VALUE);
+    }
 }

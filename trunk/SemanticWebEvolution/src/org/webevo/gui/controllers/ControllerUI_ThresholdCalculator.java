@@ -24,7 +24,7 @@ public class ControllerUI_ThresholdCalculator {
     public void getFileChooser() {
         JFileChooser chooser = new JFileChooser();
         chooser.setDialogTitle("Select .csv file to map");
-        chooser.addChoosableFileFilter(new SemanticDataFileFilter());
+//        chooser.addChoosableFileFilter(new SemanticDataFileFilter());
         chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
         chooser.setAcceptAllFileFilterUsed(false);
         FileNameExtensionFilter csvfilter = new FileNameExtensionFilter("csv files (*.csv)", "csv");
