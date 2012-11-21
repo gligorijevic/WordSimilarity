@@ -5,10 +5,12 @@
 package org.webevo.gui.forms;
 
 import javax.swing.JPanel;
+import org.webevo.gui.controllers.ControllerUI_Sampler;
 import org.webevo.gui.controllers.ControllerUI_ThresholdCalculator;
 import org.webevo.gui.controllers.ControllerUI_WordsMapper;
 import org.webevo.gui.panels.mapper.PanelCalculateThreshold;
 import org.webevo.gui.panels.mapper.PanelMapWordsTable;
+import org.webevo.gui.panels.sampler.PanelSampler;
 
 /**
  *
@@ -39,6 +41,8 @@ public class MainForm extends javax.swing.JFrame {
         miMapWords = new javax.swing.JMenuItem();
         miViewWords = new javax.swing.JMenuItem();
         miMeasureThreshold = new javax.swing.JMenuItem();
+        jMenu1 = new javax.swing.JMenu();
+        miSampleDataset = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -71,6 +75,18 @@ public class MainForm extends javax.swing.JFrame {
 
         jMenuBar2.add(jMenu4);
 
+        jMenu1.setText("Sample");
+
+        miSampleDataset.setText(" Sample dataset");
+        miSampleDataset.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                miSampleDatasetActionPerformed(evt);
+            }
+        });
+        jMenu1.add(miSampleDataset);
+
+        jMenuBar2.add(jMenu1);
+
         setJMenuBar(jMenuBar2);
 
         pack();
@@ -90,9 +106,18 @@ public class MainForm extends javax.swing.JFrame {
         PanelCalculateThreshold calculateThreshold = new PanelCalculateThreshold();
         tc.setPanelCalculateThreshold(calculateThreshold);
         calculateThreshold.setController(tc);
-        
+
         setActivePanel(calculateThreshold);
     }//GEN-LAST:event_miMeasureThresholdActionPerformed
+
+    private void miSampleDatasetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_miSampleDatasetActionPerformed
+        PanelSampler panelSampler = new PanelSampler();
+        ControllerUI_Sampler controllerSampler = new ControllerUI_Sampler();
+        controllerSampler.setPanelSampler(panelSampler);
+        panelSampler.setController(controllerSampler);
+
+        setActivePanel(panelSampler);
+    }//GEN-LAST:event_miSampleDatasetActionPerformed
 
     /**
      * @param args the command line arguments
@@ -129,28 +154,29 @@ public class MainForm extends javax.swing.JFrame {
         });
     }
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JMenu jMenu1;
     private javax.swing.JMenu jMenu3;
     private javax.swing.JMenu jMenu4;
     private javax.swing.JMenuBar jMenuBar2;
     private javax.swing.JMenuItem miMapWords;
     private javax.swing.JMenuItem miMeasureThreshold;
+    private javax.swing.JMenuItem miSampleDataset;
     private javax.swing.JMenuItem miViewWords;
     private javax.swing.JPanel pnlMain;
     // End of variables declaration//GEN-END:variables
     private JPanel activePanel;
-    
+
     public void setActivePanel(JPanel newPanel) {
         if (activePanel != null) {
             this.remove(activePanel);
         }
-        
+
         activePanel = newPanel;
-        getContentPane().add(activePanel, java.awt.BorderLayout.SOUTH);        
+        getContentPane().add(activePanel, java.awt.BorderLayout.SOUTH);
         activePanel.setVisible(true);
         validate();
         repaint();
         pack();
         System.out.println("Done");
     }
-
 }
