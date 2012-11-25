@@ -14,7 +14,8 @@ public class SchemaWordsDatabase {
 
     private ArrayList<String> schemaorgallproperties;
     private ArrayList<String> schemaorgallclasses;
-
+    private ArrayList<String> dBPediaproperties;
+    
     private SchemaWordsDatabase() {
     }
 
@@ -66,6 +67,22 @@ public class SchemaWordsDatabase {
             throw new NullPointerException("Given list is empty or null!");
         }
     }
+
+    /**
+     * @return the dBPediaproperties
+     */
+    public ArrayList<String> getdBPediaproperties() {
+        return dBPediaproperties;
+    }
+
+    /**
+     * @param dBPediaproperties the dBPediaproperties to set
+     */
+    public void setdBPediaproperties(ArrayList<String> dBPediaproperties) {
+        this.dBPediaproperties = dBPediaproperties;
+    }
+    
+    
 
     private static class SchemaWordsDatabaseHolder {
 

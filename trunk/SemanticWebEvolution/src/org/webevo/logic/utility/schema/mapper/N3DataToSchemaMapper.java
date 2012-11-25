@@ -4,13 +4,14 @@
  */
 package org.webevo.logic.utility.schema.mapper;
 
+import org.webevo.logic.similarity.semanticbased.WordSimilarityWS4J;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
-import java.io.IOException; 
+import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
@@ -28,6 +29,7 @@ public class N3DataToSchemaMapper {
     private static ArrayList<String> schemaClassesWords = new ArrayList<>();
     private static ArrayList<String> schemaPropertiesWords = new ArrayList<>();
     private static ArrayList<String> DBPediaWords = new ArrayList<>();
+    private static ArrayList<String> DBPediaPropertiesWords = new ArrayList<>();
     private static ArrayList<String> GuessedWords = new ArrayList<>();
 
     public static MappedWords mapWord(String dbPediaDatasetPath, boolean isPredicate, int columnIndex, boolean isURL, double threshold) throws FileNotFoundException, IOException, ClassNotFoundException {
@@ -79,7 +81,7 @@ public class N3DataToSchemaMapper {
                 DBPediaWords.add(wordToMap);
 
                 for (String wordToMapTo : schemaWords) {
-                    if (WordSimilarity.calculateSimilarities(extractValue(wordToMap, isURL), wordToMapTo) >= threshold) {
+                    if (WordSimilarityWS4J.calculateSimilarities(extractValue(wordToMap, isURL), wordToMapTo) >= threshold) {
                         GuessedWords.add(wordToMapTo);
                     } else {
                         GuessedWords.add(guessDataType(wordToMap));
@@ -93,7 +95,7 @@ public class N3DataToSchemaMapper {
                     }
                     for (String wordToMap : DBPediaWords) {
                         for (String wordToMapTo : schemaWords) {
-                            if (WordSimilarity.calculateSimilarities(extractValue(wordToMap, isURL), wordToMapTo) >= threshold) {
+                            if (WordSimilarityWS4J.calculateSimilarities(extractValue(wordToMap, isURL), wordToMapTo) >= threshold) {
                                 GuessedWords.add(wordToMapTo);
                             } else {
                                 GuessedWords.add(guessDataType(wordToMap));
@@ -173,7 +175,7 @@ public class N3DataToSchemaMapper {
 
                     for (String dbpediaWord : wordsInLine) {
                         for (int i = 0; i < schemaPropertiesWords.size(); i++) {
-                            if (WordSimilarity.calculateSimilarities(extractValue(dbpediaWord, false), schemaPropertiesWords.get(i)) >= threshold) {
+                            if (WordSimilarityWS4J.calculateSimilarities(extractValue(dbpediaWord, false), schemaPropertiesWords.get(i)) >= threshold) {
                                 GuessedWords.add(schemaPropertiesWords.get(i));
                                 break;
                             } else {
@@ -189,7 +191,7 @@ public class N3DataToSchemaMapper {
 
             for (String dbpediaWord : wordsInLine) {
                 for (int i = 0; i < schemaClassesWords.size(); i++) {
-                    if (WordSimilarity.calculateSimilarities(extractValue(dbpediaWord, false), schemaClassesWords.get(i)) >= threshold) {
+                    if (WordSimilarityWS4J.calculateSimilarities(extractValue(dbpediaWord, false), schemaClassesWords.get(i)) >= threshold) {
                         GuessedWords.add(schemaClassesWords.get(i));
                         break;
                     } else {
@@ -215,5 +217,42 @@ public class N3DataToSchemaMapper {
         }
         bufRdr.close();
         out.close();
+    }
+
+    public static void loadWordsToMeasureVariousSimilarities() throws FileNotFoundException, IOException, ClassNotFoundException {
+        if (SchemaWordsDatabase.getInstance().getdBPediaproperties() != null) {
+            DBPediaPropertiesWords = SchemaWordsDatabase.getInstance().getdBPediaproperties();
+        } else {
+            FileInputStream fileIn = new FileInputStream("DBpedia datasets properties names.out");
+            ObjectInputStream in = new ObjectInputStream(fileIn);
+            DBPediaPropertiesWords = (ArrayList<String>) in.readObject();
+            SchemaWordsDatabase.getInstance().setdBPediaproperties(DBPediaPropertiesWords);
+            in.close();
+            fileIn.close();
+            System.out.println("File DBpedia datasets properties names.out was loaded successfully");
+        }
+
+        if (SchemaWordsDatabase.getInstance().getSchemaorgallproperties() != null) {
+            schemaWords = SchemaWordsDatabase.getInstance().getSchemaorgallproperties();
+        } else {
+            FileInputStream fileIn = new FileInputStream("schemaorgallproperties.out");
+            ObjectInputStream in = new ObjectInputStream(fileIn);
+            schemaWords = (ArrayList<String>) in.readObject();
+            SchemaWordsDatabase.getInstance().setSchemaorgallproperties(schemaWords);
+            in.close();
+            fileIn.close();
+            System.out.println("File schemaorgallproperties.out was loaded successfully");
+        }
+    }
+
+    public static void main(String[] args) throws FileNotFoundException, IOException, ClassNotFoundException {
+        loadWordsToMeasureVariousSimilarities();
+        double similarity = 0;
+        for (String dbPediapropWord : SchemaWordsDatabase.getInstance().getdBPediaproperties()) {
+            for (String schemaPropWord : SchemaWordsDatabase.getInstance().getSchemaorgallproperties()) {
+                WordSimilarityWS4J.calculateSimilarities(dbPediapropWord, schemaPropWord);
+            }
+        }
+
     }
 }
