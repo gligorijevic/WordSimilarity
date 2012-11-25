@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.webevo.logic.utility.schema.mapper;
+package org.webevo.logic.similarity.semanticbased;
 
 import edu.cmu.lti.lexical_db.ILexicalDatabase;
 import edu.cmu.lti.lexical_db.NictWordNet;
@@ -16,6 +16,11 @@ import edu.cmu.lti.ws4j.impl.Path;
 import edu.cmu.lti.ws4j.impl.Resnik;
 import edu.cmu.lti.ws4j.impl.WuPalmer;
 import edu.cmu.lti.ws4j.util.WS4JConfiguration;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,7 +28,7 @@ import java.util.List;
  *
  * @author Djordje
  */
-public class WordSimilarity {
+public class WordSimilarityWS4J {
 
     private static ILexicalDatabase db = new NictWordNet();
     private static RelatednessCalculator[] rcs = {
@@ -37,6 +42,7 @@ public class WordSimilarity {
         for (RelatednessCalculator rc : rcs) {
             double s = rc.calcRelatednessOfWords(word1, word2);
 //            System.out.println(rc.getClass().getName() + "\t" + s);
+            System.out.println("Similarity between " + word1 + " and " + word2 + " :" + rc.getClass().getName() + "\t" + s);
             results.add(s);
         }
         double result = 0;
@@ -47,6 +53,24 @@ public class WordSimilarity {
         return result;
     }
 
+//    public static double calculateAndSaveSimilarities(String word1, String word2, String fileName) throws FileNotFoundException {
+//        List<Double> results = new ArrayList<>();
+//        File file = new File(fileName);
+//        PrintWriter out = new PrintWriter(new OutputStreamWriter(new FileOutputStream(file)));
+//        WS4JConfiguration.getInstance().setMFS(true);
+//        for (RelatednessCalculator rc : rcs) {
+//            double s = rc.calcRelatednessOfWords(word1, word2);
+//            System.out.println(rc.getClass().getName() + "\t" + s);
+//            out.write("Similarity between " + word1 + " and " + word2 + " :" + rc.getClass().getName() + "\t" + s);
+//            results.add(s);
+//        }
+//        double result = 0;
+//        for (Double sim : results) {
+//            result = result + sim;
+//        }
+//        result = result / results.size();
+//        return result;
+//    }
     public static double calculateThreshold(ArrayList<String> DBPediaWords, ArrayList<String> SchemaWords) {
         double treshold = 0;
         for (String DBPediaWord : DBPediaWords) {
@@ -60,7 +84,7 @@ public class WordSimilarity {
 
     public static void main(String[] args) {
         long t0 = System.currentTimeMillis();
-        calculateSimilarities("A", "A");
+        calculateSimilarities("homepage", "web_presence");
         long t1 = System.currentTimeMillis();
         System.out.println("Done in " + (t1 - t0) + " msec.");
         System.out.println("Max: " + Double.MAX_VALUE);

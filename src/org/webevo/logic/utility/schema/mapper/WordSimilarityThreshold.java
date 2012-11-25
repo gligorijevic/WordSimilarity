@@ -4,6 +4,7 @@
  */
 package org.webevo.logic.utility.schema.mapper;
 
+import org.webevo.logic.similarity.semanticbased.WordSimilarityWS4J;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -83,7 +84,7 @@ public class WordSimilarityThreshold {
                     }
                     System.out.println("Calculating label threshold started (with DBpedia classes list size =" + DBPediaLabelWords.size() + " ) at: ");
                     Utility.currentTime();
-                    labelThreshold = WordSimilarity.calculateThreshold(DBPediaLabelWords, schemaClassesWords);
+                    labelThreshold = WordSimilarityWS4J.calculateThreshold(DBPediaLabelWords, schemaClassesWords);
                     System.out.println("Threshold for label in " + name + " file is: " + labelThreshold);
                     writer.println("Threshold for label in " + name + " file is: " + labelThreshold);
                     System.out.println("Calculating label threshold finished at: ");
@@ -120,7 +121,7 @@ public class WordSimilarityThreshold {
 //                }
             System.out.println("Calculating classes data threshold started (with DBPedia classes words size = " + DBPediaClassWords.size() + ") at: ");
             Utility.currentTime();
-            calc += WordSimilarity.calculateThreshold(DBPediaClassWords, schemaClassesWords);
+            calc += WordSimilarityWS4J.calculateThreshold(DBPediaClassWords, schemaClassesWords);
             System.out.println("Calculating label threshold finished at: ");
             Utility.currentTime();
 //            }
@@ -140,7 +141,7 @@ public class WordSimilarityThreshold {
 //                }
             System.out.println("Calculating properties data threshold started (with DBPedia properties words size = " + DBPediaPropertiesWords.size() + ") at: ");
             Utility.currentTime();
-            calc1 += WordSimilarity.calculateThreshold(DBPediaPropertiesWords, schemaPropertiesWords);
+            calc1 += WordSimilarityWS4J.calculateThreshold(DBPediaPropertiesWords, schemaPropertiesWords);
             System.out.println("Calculating label threshold finished at: ");
             Utility.currentTime();
 //            }

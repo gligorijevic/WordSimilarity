@@ -13,7 +13,7 @@ import org.webevo.logic.utility.parse.N3toCSVParser;
 import org.webevo.logic.utility.sample.SampleN3Data;
 import org.webevo.logic.utility.schema.mapper.N3DataToSchemaMapper;
 import org.webevo.logic.utility.schema.mapper.SerializeSchemaData;
-import org.webevo.logic.utility.schema.mapper.WordSimilarity;
+import org.webevo.logic.similarity.semanticbased.WordSimilarityWS4J;
 import org.webevo.logic.utility.schema.mapper.WordSimilarityThreshold;
 
 /**

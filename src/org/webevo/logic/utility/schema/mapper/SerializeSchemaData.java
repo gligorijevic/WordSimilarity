@@ -20,7 +20,7 @@ import java.util.List;
  * @author Djordje
  */
 public class SerializeSchemaData {
-
+    
     private static File SchemaDataset;
     private static List<String> schemaData = new ArrayList<>();
     
@@ -28,16 +28,37 @@ public class SerializeSchemaData {
         BufferedReader bufRdrSchema;
         SchemaDataset = new File(filePath);
         bufRdrSchema = new BufferedReader(new FileReader(SchemaDataset));
-        String line = null;        
+        String line = null;
         
         while ((line = bufRdrSchema.readLine()) != null) {
             schemaData.add(line.split(",")[0]);
         }
         bufRdrSchema.close();
         
-        File serializedFile = new File(filePath.substring(filePath.lastIndexOf("\\")+1, filePath.length()-4)+".out");
+        File serializedFile = new File(filePath.substring(filePath.lastIndexOf("\\") + 1, filePath.length() - 4) + ".out");
         ObjectOutput ObjOut = new ObjectOutputStream(new FileOutputStream(serializedFile));
         ObjOut.writeObject(schemaData);
         ObjOut.close();
     }
+    
+    public static void serializeDBPediaProperties(String filePath) throws FileNotFoundException, IOException {
+        BufferedReader bufRdrSchema;
+        SchemaDataset = new File(filePath);
+        bufRdrSchema = new BufferedReader(new FileReader(SchemaDataset));
+        String line = null;
+        
+        while ((line = bufRdrSchema.readLine()) != null) {
+            schemaData.add(line);
+        }
+        bufRdrSchema.close();
+        
+        File serializedFile = new File(filePath.substring(filePath.lastIndexOf("\\") + 1, filePath.length() - 4) + ".out");
+        ObjectOutput ObjOut = new ObjectOutputStream(new FileOutputStream(serializedFile));
+        ObjOut.writeObject(schemaData);
+        ObjOut.close();
+    }
+    
+//    public static void main(String[] args) throws FileNotFoundException, IOException {
+//        serializeDBPediaProperties("E:\\Semantic web baze\\DBpedia datasets properties names.txt");
+//    }
 }

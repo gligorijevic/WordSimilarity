@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.webevo.logic.utility.schema.mapper;
+package org.webevo.logic.similarity.textbased;
 /**
  *
  * @author Djordje Gligorijevic
@@ -123,7 +123,7 @@ public class LevensteinDistance {
 
     public static void main(String[] args) {
         System.out.println(LevensteinDistance.levensteinPHPImplementation("rec1", "rec2"));
-        System.out.println(LevensteinDistance.computeLevenshteinDistance("rec1", "rec2"));
-        System.out.println(LevensteinDistance.computeDistance("rec1", "rec2"));
+        System.out.println(LevensteinDistance.computeLevenshteinDistance("wgs84_pos#lat", "latitude"));
+        System.out.println(LevensteinDistance.computeDistance("lat", "latitude"));
     }
 }

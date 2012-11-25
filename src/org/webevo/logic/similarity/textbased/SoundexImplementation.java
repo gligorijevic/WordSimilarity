@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.webevo.logic.utility.schema.mapper;
+package org.webevo.logic.similarity.textbased;
 
 import org.apache.commons.codec.EncoderException;
 import org.apache.commons.codec.language.Soundex;
@@ -18,7 +18,7 @@ public class SoundexImplementation {
         System.out.println(soundexImplementation("Example"));
         System.out.println(soundexImplementation("Sownteks"));
         System.out.println(soundexImplementation("Ekzampul"));
-        System.out.println(soundexApache("Webpage", "Homepage"));
+        System.out.println(soundexApache("lat", "latitude"));
     }
 
     private static String getCode(char c) {
@@ -69,6 +69,7 @@ public class SoundexImplementation {
 
     public static int soundexApache(String word1, String word2) throws EncoderException {
         Soundex soundex = new Soundex();
+        System.out.println("soundex apache: " + soundex.soundex(word1));
         System.out.println("soundex apache: " + soundex.soundex(word2));
 
         return soundex.difference(word1, word2);
