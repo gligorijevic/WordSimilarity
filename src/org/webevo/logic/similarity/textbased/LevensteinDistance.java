@@ -3,6 +3,9 @@
  * and open the template in the editor.
  */
 package org.webevo.logic.similarity.textbased;
+
+import java.util.ArrayList;
+
 /**
  *
  * @author Djordje Gligorijevic
@@ -120,10 +123,135 @@ public class LevensteinDistance {
         }
         return costs[s2.length()];
     }
+    /*
+     * first word must not have prefixes!
+     */
+    public static double levensteinDistanceWrapper(String firstWord, String secondWord) {
+
+        double result = 0;
+
+        int firstWordLength = firstWord.length();
+        int secondWordLength = secondWord.length();
+        String[] firstWordParts = firstWord.split(" ");
+        if (firstWordParts.length < 2) {
+            firstWordParts = firstWord.split("_");
+
+        }
+        String[] secondWordParts = secondWord.split(" ");
+        if (secondWordParts.length < 2) {
+            secondWordParts = secondWord.split("_");
+
+        }
+
+        if (firstWordParts.length < 2) {
+            //for ASCII letters
+//        String[] r = firstWord.split("(?=\\p{Upper})");
+            firstWordParts = firstWord.split("(?=[A-Z])");
+            //for non-ASCII letters
+            // String[] r = s.split("(?=\\p{Lu})");
+        } else {
+            firstWordLength = firstWord.length() - firstWordParts.length - 1;
+        }
+        if (secondWordParts.length < 2) {
+            secondWordParts = secondWord.split(""
+                    + "(?=[A-Z])");
+        } else {
+            secondWordLength = secondWord.length() - secondWordParts.length - 1;
+        }
+
+        String firstWordAbbreviation;
+        String secondWordAbbreviation;
+        StringBuilder firstWordAbbreviationB = new StringBuilder();
+        StringBuilder secondWordAbbreviationB = new StringBuilder();
+
+
+
+        ArrayList<String> firstWordPartsArray = capitalWord(firstWordParts, firstWordAbbreviationB);
+        ArrayList<String> secondWordPartsArray = capitalWord(secondWordParts, secondWordAbbreviationB);
+
+        firstWordAbbreviation = firstWordAbbreviationB.toString();
+        secondWordAbbreviation = secondWordAbbreviationB.toString();
+
+        firstWordParts = firstWordPartsArray.toArray(new String[firstWordPartsArray.size()]);
+        secondWordParts = secondWordPartsArray.toArray(new String[secondWordPartsArray.size()]);
+
+        //TODO - but still works. :)
+        if (firstWordAbbreviation.length() > 2) {
+            for (String part : secondWordParts) {
+                if (part.contains(firstWordAbbreviation)) {
+                    return 0;
+                }
+            }
+        } else if (secondWordAbbreviation.length() > 2) {
+            for (String part : firstWordParts) {
+                if (part.contains(secondWordAbbreviation)) {
+                    return 0;
+                }
+            }
+        }
+
+
+
+        int secondWordIndex = -1;
+        int[] usedIndexesOfSecondWordParts = new int[secondWordParts.length];
+        for (int i = 0; i < usedIndexesOfSecondWordParts.length; i++) {
+            usedIndexesOfSecondWordParts[i] = -1;
+        }
+
+        for (int i = 0; i < firstWordParts.length; i++) {
+            int calcualtedDistance = 100;
+            for (int j = 0; j < secondWordParts.length; j++) {
+                if (i <= usedIndexesOfSecondWordParts.length - 1) {
+//                    if (-1 == usedIndexesOfSecondWordParts[i] || i == usedIndexesOfSecondWordParts[i]) {
+                    if (calcualtedDistance >= computeLevenshteinDistance(firstWordParts[i], secondWordParts[j]) && computeLevenshteinDistance(firstWordParts[i], secondWordParts[j]) < firstWordParts[i].length() + secondWordParts[j].length()) {
+                        calcualtedDistance = computeLevenshteinDistance(firstWordParts[i], secondWordParts[j]);
+                        usedIndexesOfSecondWordParts[j] = i;
+                    }
+//                    }
+                } else {
+                    calcualtedDistance = 0;
+                }
+            }
+            result += calcualtedDistance;
+            System.out.println("U " + i + "toj iteraciji levenstein distance ima vrednost: " + result);
+        }
+        return result;
+    }
+
+    public static ArrayList<String> capitalWord(String[] stringArray, StringBuilder abbreviationBuilder) {
+        ArrayList<String> newArray = new ArrayList<>();
+        StringBuilder builder = new StringBuilder();
+
+        for (int i = 0; i < stringArray.length; i++) {
+            if (stringArray[i].length() == 1) {
+                if (Character.isUpperCase(stringArray[i].charAt(0))) {
+                    builder.append(stringArray[i]);
+                    abbreviationBuilder.append(stringArray[i].toLowerCase());
+                }
+            } else {
+                if (Character.isUpperCase(stringArray[i].charAt(0))) {
+//                    if (i > 0) {
+//                        if (Character.isUpperCase(stringArray[i - 1].charAt(0))) {
+//                            builder.append(stringArray[i]);
+//                        }
+//                    }
+                    abbreviationBuilder.append(stringArray[i].toLowerCase().toCharArray()[0]);
+                    newArray.add(stringArray[i].toLowerCase());
+                } else {
+                    newArray.add(stringArray[i].toLowerCase());
+                }
+            }
+        }
+        if (!builder.toString().equals("") && builder.toString() != null) {
+            newArray.add(builder.toString());
+        }
+        return newArray;
+    }
 
     public static void main(String[] args) {
-        System.out.println(LevensteinDistance.levensteinPHPImplementation("rec1", "rec2"));
-        System.out.println(LevensteinDistance.computeLevenshteinDistance("wgs84_pos#lat", "latitude"));
-        System.out.println(LevensteinDistance.computeDistance("lat", "latitude"));
+//        System.out.println(LevensteinDistance.levensteinPHPImplementation("rec1", "rec2"));
+//        System.out.println(LevensteinDistance.computeLevenshteinDistance("webPage", "homePage"));
+        System.out.println(LevensteinDistance.computeDistance("minValue", "hasMinValue"));
+        System.out.println(levensteinDistanceWrapper("minValue", "hasMinValue"));
     }
 }

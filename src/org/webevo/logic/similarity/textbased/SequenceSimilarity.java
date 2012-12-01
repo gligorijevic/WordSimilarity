@@ -15,14 +15,17 @@ public class SequenceSimilarity {
     public static double sequenceSimilarity(String firstWord, String secondWord) {
 
         double result = 0;
-
+        int firstWordLength = firstWord.length();
+        int secondWordLength = secondWord.length();
         String[] firstWordParts = firstWord.split(" ");
         if (firstWordParts.length < 2) {
             firstWordParts = firstWord.split("_");
+
         }
         String[] secondWordParts = secondWord.split(" ");
         if (secondWordParts.length < 2) {
             secondWordParts = secondWord.split("_");
+
         }
 
         if (firstWordParts.length < 2) {
@@ -31,12 +34,47 @@ public class SequenceSimilarity {
             firstWordParts = firstWord.split("(?=[A-Z])");
             //for non-ASCII letters
             // String[] r = s.split("(?=\\p{Lu})");
-        } else if (secondWordParts.length < 2) {
+        } else {
+            firstWordLength = firstWord.length() - firstWordParts.length - 1;
+        }
+        if (secondWordParts.length < 2) {
             secondWordParts = secondWord.split(""
                     + "(?=[A-Z])");
+        } else {
+            secondWordLength = secondWord.length() - secondWordParts.length - 1;
         }
 
-        int longestSequence = 0;
+        String firstWordAbbreviation;
+        String secondWordAbbreviation;
+        StringBuilder firstWordAbbreviationB = new StringBuilder();
+        StringBuilder secondWordAbbreviationB = new StringBuilder();
+
+
+
+        ArrayList<String> firstWordPartsArray = capitalWord(firstWordParts, firstWordAbbreviationB);
+        ArrayList<String> secondWordPartsArray = capitalWord(secondWordParts, secondWordAbbreviationB);
+
+        firstWordAbbreviation = firstWordAbbreviationB.toString();
+        secondWordAbbreviation = secondWordAbbreviationB.toString();
+
+        firstWordParts = firstWordPartsArray.toArray(new String[firstWordPartsArray.size()]);
+        secondWordParts = secondWordPartsArray.toArray(new String[secondWordPartsArray.size()]);
+
+        //TODO - but still works. :)
+        if (firstWordAbbreviation.length() > 2) {
+            for (String part : secondWordParts) {
+                if (part.contains(firstWordAbbreviation)) {
+                    return 1;
+                }
+            }
+        } else if (secondWordAbbreviation.length() > 2) {
+            for (String part : firstWordParts) {
+                if (part.contains(secondWordAbbreviation)) {
+                    return 1;
+                }
+            }
+        }
+
         int secondWordIndex = -1;
         int[] usedIndexesOfSecondWordParts = new int[secondWordParts.length];
         for (int i = 0; i < usedIndexesOfSecondWordParts.length; i++) {
@@ -44,32 +82,35 @@ public class SequenceSimilarity {
         }
 
         for (int i = 0; i < firstWordParts.length; i++) {
+            int longestSequence = 0;
             int jot = 0;
             for (int j = 0; j < secondWordParts.length; j++) {
+                if (i <= usedIndexesOfSecondWordParts.length - 1) {
 
-                if (-1 == usedIndexesOfSecondWordParts[i]) {
-
-                    if (longestSequence <= score(firstWordParts[i], secondWordParts[j])) {
+                    if (longestSequence <= score(firstWordParts[i], secondWordParts[j]) && score(firstWordParts[i], secondWordParts[j]) > 0) {
                         longestSequence = score(firstWordParts[i], secondWordParts[j]);
                         usedIndexesOfSecondWordParts[j] = i;
                         jot = j;
+                    } else if (longestSequence == 0) {
+                        longestSequence = 0;
+                        usedIndexesOfSecondWordParts[j] = i;
+                        jot = j;
                     }
-
                 }
-
             }
-            double a = (firstWordParts[i].length() + secondWordParts[usedIndexesOfSecondWordParts[jot]].length());
+
+//            double a = (firstWordParts[i].length() + secondWordParts[usedIndexesOfSecondWordParts[jot]].length());
 //            System.out.println(a);
-            double b = (firstWord.length() + secondWord.length());
+//            double b = (firstWordLength + secondWordLength);
 //            System.out.println(b);
-            double c = (longestSequence);
+//            double c = (longestSequence);
 //            System.out.println(c);
-            double d = (firstWordParts[i].length() + secondWordParts[usedIndexesOfSecondWordParts[jot]].length());
+//            double d = (firstWordParts[i].length() + secondWordParts[usedIndexesOfSecondWordParts[jot]].length());
 //            System.out.println(d);
 //            System.out.println(a / b * c / d * 2);
-            result += a / b * c / d * 2;
-//            result += ((firstWordParts[i].length() + secondWordParts[usedIndexesOfSecondWordParts[jot]].length()) / (firstWord.length() + secondWord.length())) * ((longestSequence / (firstWordParts[i].length() + secondWordParts[usedIndexesOfSecondWordParts[jot]].length()) * 2));
-            System.out.println("U "+i+"toj iteraciji result ima vrednost: "+result);
+//            result += a / b * c / d * 2;
+            result += (((double) firstWordParts[i].length() + (double) secondWordParts[usedIndexesOfSecondWordParts[jot]].length()) / ((double) firstWordLength + (double) secondWordLength)) * (((double) longestSequence / ((double) firstWordParts[i].length() + (double) secondWordParts[usedIndexesOfSecondWordParts[jot]].length()) * 2.0));
+            System.out.println("U " + i + "toj iteraciji result ima vrednost: " + result);
 
 
         }
@@ -194,9 +235,39 @@ public class SequenceSimilarity {
         return sb.reverse().toString();
     }
 
+    public static ArrayList<String> capitalWord(String[] stringArray, StringBuilder abbreviationBuilder) {
+        ArrayList<String> newArray = new ArrayList<>();
+        StringBuilder builder = new StringBuilder();
+
+        for (int i = 0; i < stringArray.length; i++) {
+            if (stringArray[i].length() == 1) {
+                if (Character.isUpperCase(stringArray[i].charAt(0))) {
+                    builder.append(stringArray[i]);
+                    abbreviationBuilder.append(stringArray[i].toLowerCase());
+                }
+            } else {
+                if (Character.isUpperCase(stringArray[i].charAt(0))) {
+//                    if (i > 0) {
+//                        if (Character.isUpperCase(stringArray[i - 1].charAt(0))) {
+//                            builder.append(stringArray[i]);
+//                        }
+//                    }
+                    abbreviationBuilder.append(stringArray[i].toLowerCase().toCharArray()[0]);
+                    newArray.add(stringArray[i].toLowerCase());
+                } else {
+                    newArray.add(stringArray[i].toLowerCase());
+                }
+            }
+        }
+        if (!builder.toString().equals("") && builder.toString() != null) {
+            newArray.add(builder.toString());
+        }
+        return newArray;
+    }
+
     public static void main(String[] args) {
-        String a = "home_page";
-        String b = "web_page";
+        String a = "minValue";
+        String b = "hasMinValue";
 
 //        System.out.println(score(a, b));
 //        System.out.println(lcs(a, b));
