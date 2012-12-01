@@ -16,11 +16,6 @@ import edu.cmu.lti.ws4j.impl.Path;
 import edu.cmu.lti.ws4j.impl.Resnik;
 import edu.cmu.lti.ws4j.impl.WuPalmer;
 import edu.cmu.lti.ws4j.util.WS4JConfiguration;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -50,6 +45,79 @@ public class WordSimilarityWS4J {
             result = result + sim;
         }
         result = result / results.size();
+        return result;
+    }
+
+    public static double semanticSimilaritiesWrapper(String firstWord, String secondWord) {
+        List<Double> results = new ArrayList<>();
+        WS4JConfiguration.getInstance().setMFS(true);
+        double result = 0;
+        double averageResultSet = 0;
+
+        String[] firstWordParts = firstWord.split(" ");
+        if (firstWordParts.length < 2) {
+            firstWordParts = firstWord.split("_");
+        }
+        String[] secondWordParts = secondWord.split(" ");
+        if (secondWordParts.length < 2) {
+            secondWordParts = secondWord.split("_");
+        }
+
+        if (firstWordParts.length < 2) {
+            //for ASCII letters
+//        String[] r = firstWord.split("(?=\\p{Upper})");
+            firstWordParts = firstWord.split("(?=[A-Z])");
+            //for non-ASCII letters
+            // String[] r = s.split("(?=\\p{Lu})");
+        }
+        if (secondWordParts.length < 2) {
+            secondWordParts = secondWord.split(""
+                    + "(?=[A-Z])");
+        }
+
+
+        int secondWordIndex = -1;
+        int[] usedIndexesOfSecondWordParts = new int[secondWordParts.length];
+        for (int i = 0; i < usedIndexesOfSecondWordParts.length; i++) {
+            usedIndexesOfSecondWordParts[i] = -1;
+        }
+
+        for (int i = 0; i < firstWordParts.length; i++) {
+            double averageSemanticResult = 0;
+            int jot = 0;
+            for (int j = 0; j < secondWordParts.length; j++) {
+
+                if (-1 == usedIndexesOfSecondWordParts[i]) {
+                    for (RelatednessCalculator rc : rcs) {
+                        double s = rc.calcRelatednessOfWords(firstWordParts[i], secondWordParts[j]);
+                        
+                        results.add(s);
+                    }
+                    for (Double sim : results) {
+                        averageResultSet = averageResultSet + sim;
+                    }
+                    averageResultSet = averageResultSet / results.size();
+
+                    if (averageSemanticResult <= averageResultSet) {
+                        averageSemanticResult = averageResultSet;
+                        System.out.println("Average semantic similarity between " + firstWordParts[i] + " and " + secondWordParts[j] + " :" + "\t" + averageSemanticResult);
+                        usedIndexesOfSecondWordParts[j] = i;
+                        jot = j;
+                    }
+
+                }
+
+            }
+            double d = ((double) firstWordParts[i].length() + (double) secondWordParts[usedIndexesOfSecondWordParts[jot]].length()) / ((double) firstWord.length() + (double) secondWord.length());
+
+            result += averageSemanticResult * d;
+//            System.out.println("U " + i + "toj iteraciji result ima vrednost: " + result);
+
+
+        }
+
+
+
         return result;
     }
 
@@ -84,7 +152,8 @@ public class WordSimilarityWS4J {
 
     public static void main(String[] args) {
         long t0 = System.currentTimeMillis();
-        calculateSimilarities("homepage", "web_presence");
+        calculateSimilarities("value", "price");
+//        semanticSimilaritiesWrapper("mbox", "email");
         long t1 = System.currentTimeMillis();
         System.out.println("Done in " + (t1 - t0) + " msec.");
         System.out.println("Max: " + Double.MAX_VALUE);
