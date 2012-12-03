@@ -86,15 +86,23 @@ public class SequenceSimilarity {
             int jot = 0;
             for (int j = 0; j < secondWordParts.length; j++) {
                 if (i <= usedIndexesOfSecondWordParts.length - 1) {
-
-                    if (longestSequence <= score(firstWordParts[i], secondWordParts[j]) && score(firstWordParts[i], secondWordParts[j]) > 0) {
-                        longestSequence = score(firstWordParts[i], secondWordParts[j]);
-                        usedIndexesOfSecondWordParts[j] = i;
-                        jot = j;
-                    } else if (longestSequence == 0) {
-                        longestSequence = 0;
-                        usedIndexesOfSecondWordParts[j] = i;
-                        jot = j;
+                    //da se preskoce reci koje su vec mapirane.
+                    boolean mapped = false;
+                    for (int k : usedIndexesOfSecondWordParts) {
+                        if (k == j) {
+                            mapped = true;
+                        }
+                    }
+                    if (!mapped) {
+                        if (longestSequence <= score(firstWordParts[i], secondWordParts[j]) && score(firstWordParts[i], secondWordParts[j]) > 0) {
+                            longestSequence = score(firstWordParts[i], secondWordParts[j]);
+                            usedIndexesOfSecondWordParts[i] = j;
+                            jot = j;
+                        } else if (longestSequence == 0) {
+                            longestSequence = 0;
+                            usedIndexesOfSecondWordParts[i] = j;
+                            jot = j;
+                        }
                     }
                 }
             }
@@ -266,8 +274,8 @@ public class SequenceSimilarity {
     }
 
     public static void main(String[] args) {
-        String a = "minValue";
-        String b = "hasMinValue";
+        String a = "priceType";
+        String b = "priceSpecification";
 
 //        System.out.println(score(a, b));
 //        System.out.println(lcs(a, b));
