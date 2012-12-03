@@ -19,8 +19,8 @@ public class SoundexImplementation {
 //        System.out.println(soundexImplementation("Example"));
 //        System.out.println(soundexImplementation("Sownteks"));
 //        System.out.println(soundexImplementation("Ekzampul"));
-        System.out.println(soundexApache("minValue", "hasMinValue"));
-        System.out.println(soundexApacheWrapper("minValue", "hasMinValue"));
+        System.out.println(soundexApache("eligibleQuantity", "hasEligibleQuantity"));
+        System.out.println(soundexApacheWrapper("eligibleQuantity", "hasEligibleQuantity"));
     }
 
     private static String getCode(char c) {
@@ -153,13 +153,20 @@ public class SoundexImplementation {
             int jot = 0;
             for (int j = 0; j < secondWordParts.length; j++) {
                 if (i <= usedIndexesOfSecondWordParts.length - 1) {
-
-                    if (measuresSoundexSimilarity <= soundexApache(firstWordParts[i], secondWordParts[j])) {
-                        measuresSoundexSimilarity = soundexApache(firstWordParts[i], secondWordParts[j]);
-                        usedIndexesOfSecondWordParts[j] = i;
-                        jot = j;
+                    boolean mapped = false;
+                    for (int k : usedIndexesOfSecondWordParts) {
+                        if (k == j) {
+                            mapped = true;
+                        }
                     }
+                    if (!mapped) {
+                        if (measuresSoundexSimilarity <= soundexApache(firstWordParts[i], secondWordParts[j])) {
+                            measuresSoundexSimilarity = soundexApache(firstWordParts[i], secondWordParts[j]);
+                            usedIndexesOfSecondWordParts[j] = i;
+                            jot = j;
+                        }
 
+                    }
                 }
             }
             double d = ((double) firstWordParts[i].length() + (double) secondWordParts[usedIndexesOfSecondWordParts[jot]].length()) / ((double) firstWordLength + (double) secondWordLength);

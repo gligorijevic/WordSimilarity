@@ -126,6 +126,7 @@ public class LevensteinDistance {
     /*
      * first word must not have prefixes!
      */
+
     public static double levensteinDistanceWrapper(String firstWord, String secondWord) {
 
         double result = 0;
@@ -201,20 +202,30 @@ public class LevensteinDistance {
         for (int i = 0; i < firstWordParts.length; i++) {
             int calcualtedDistance = 100;
             for (int j = 0; j < secondWordParts.length; j++) {
-                if (i <= usedIndexesOfSecondWordParts.length - 1) {
-//                    if (-1 == usedIndexesOfSecondWordParts[i] || i == usedIndexesOfSecondWordParts[i]) {
-                    if (calcualtedDistance >= computeLevenshteinDistance(firstWordParts[i], secondWordParts[j]) && computeLevenshteinDistance(firstWordParts[i], secondWordParts[j]) < firstWordParts[i].length() + secondWordParts[j].length()) {
-                        calcualtedDistance = computeLevenshteinDistance(firstWordParts[i], secondWordParts[j]);
-                        usedIndexesOfSecondWordParts[j] = i;
+                boolean mapped = false;
+                for (int k : usedIndexesOfSecondWordParts) {
+                    if (k == j) {
+                        mapped = true;
                     }
+                }
+                if (!mapped) {
+                    if (i <= usedIndexesOfSecondWordParts.length - 1) {
+//                    if (-1 == usedIndexesOfSecondWordParts[i] || i == usedIndexesOfSecondWordParts[i]) {
+
+                        if (calcualtedDistance >= computeLevenshteinDistance(firstWordParts[i], secondWordParts[j]) && computeLevenshteinDistance(firstWordParts[i], secondWordParts[j]) < firstWordParts[i].length() + secondWordParts[j].length()) {
+                            calcualtedDistance = computeLevenshteinDistance(firstWordParts[i], secondWordParts[j]);
+                            usedIndexesOfSecondWordParts[j] = i;
+                        }
 //                    }
-                } else {
-                    calcualtedDistance = 0;
+                    } else {
+                        calcualtedDistance = 0;
+                    }
                 }
             }
             result += calcualtedDistance;
             System.out.println("U " + i + "toj iteraciji levenstein distance ima vrednost: " + result);
         }
+        //proveri da li ima viska reci!
         return result;
     }
 
@@ -251,7 +262,7 @@ public class LevensteinDistance {
     public static void main(String[] args) {
 //        System.out.println(LevensteinDistance.levensteinPHPImplementation("rec1", "rec2"));
 //        System.out.println(LevensteinDistance.computeLevenshteinDistance("webPage", "homePage"));
-        System.out.println(LevensteinDistance.computeDistance("minValue", "hasMinValue"));
-        System.out.println(levensteinDistanceWrapper("minValue", "hasMinValue"));
+        System.out.println(LevensteinDistance.computeDistance("eligibleQuantity", "hasEligibleQuantity"));
+        System.out.println(levensteinDistanceWrapper("eligibleQuantity", "hasEligibleQuantity"));
     }
 }
