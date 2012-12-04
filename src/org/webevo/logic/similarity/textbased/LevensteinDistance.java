@@ -201,6 +201,7 @@ public class LevensteinDistance {
 
         for (int i = 0; i < firstWordParts.length; i++) {
             int calcualtedDistance = 100;
+            int jot = 0;
             for (int j = 0; j < secondWordParts.length; j++) {
                 boolean mapped = false;
                 for (int k : usedIndexesOfSecondWordParts) {
@@ -215,6 +216,7 @@ public class LevensteinDistance {
                         if (calcualtedDistance >= computeLevenshteinDistance(firstWordParts[i], secondWordParts[j]) && computeLevenshteinDistance(firstWordParts[i], secondWordParts[j]) < firstWordParts[i].length() + secondWordParts[j].length()) {
                             calcualtedDistance = computeLevenshteinDistance(firstWordParts[i], secondWordParts[j]);
                             usedIndexesOfSecondWordParts[j] = i;
+                            jot = j;
                         }
 //                    }
                     } else {
@@ -222,11 +224,13 @@ public class LevensteinDistance {
                     }
                 }
             }
-            result += calcualtedDistance;
+            double d = ((double) firstWordParts[i].length() + (double) secondWordParts[usedIndexesOfSecondWordParts[jot]].length()) / ((double) firstWordLength + (double) secondWordLength);
+            result += (double) calcualtedDistance * d;
             System.out.println("U " + i + "toj iteraciji levenstein distance ima vrednost: " + result);
         }
         //proveri da li ima viska reci!
-        return result;
+        long resultLong = Math.round(result);
+        return resultLong;
     }
 
     public static ArrayList<String> capitalWord(String[] stringArray, StringBuilder abbreviationBuilder) {
@@ -263,6 +267,6 @@ public class LevensteinDistance {
 //        System.out.println(LevensteinDistance.levensteinPHPImplementation("rec1", "rec2"));
 //        System.out.println(LevensteinDistance.computeLevenshteinDistance("webPage", "homePage"));
         System.out.println(LevensteinDistance.computeDistance("eligibleQuantity", "hasEligibleQuantity"));
-        System.out.println(levensteinDistanceWrapper("eligibleQuantity", "hasEligibleQuantity"));
+        System.out.println(levensteinDistanceWrapper("eligibleQuantity", "hasStupidEligibleQuantity"));
     }
 }

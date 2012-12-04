@@ -17,6 +17,7 @@ import edu.cmu.lti.ws4j.impl.Resnik;
 import edu.cmu.lti.ws4j.impl.WuPalmer;
 import edu.cmu.lti.ws4j.util.WS4JConfiguration;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -244,6 +245,7 @@ public class WordSimilarityWS4J {
             //for non-ASCII letters
             // String[] r = s.split("(?=\\p{Lu})");
         } else {
+            //proveri cemu ovo sluzi.
             firstWordLength = firstWord.length() - firstWordParts.length - 1;
         }
         if (secondWordParts.length < 2) {
@@ -273,13 +275,13 @@ public class WordSimilarityWS4J {
         if (firstWordAbbreviation.length() > 2) {
             for (String part : secondWordParts) {
                 if (part.contains(firstWordAbbreviation)) {
-                    return Double.MAX_VALUE;
+                    return 1;
                 }
             }
         } else if (secondWordAbbreviation.length() > 2) {
             for (String part : firstWordParts) {
                 if (part.contains(secondWordAbbreviation)) {
-                    return Double.MAX_VALUE;
+                    return 1;
                 }
             }
         }
@@ -289,12 +291,14 @@ public class WordSimilarityWS4J {
         for (int i = 0; i < usedIndexesOfSecondWordParts.length; i++) {
             usedIndexesOfSecondWordParts[i] = -1;
         }
-
+        List<Double> results = Arrays.asList(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
         for (int i = 0; i < firstWordParts.length; i++) {
+            List<Double> dummy = Arrays.asList(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+            List<Double> dummy2 = Arrays.asList(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
             double averageSemanticSimilarity = 0;
             int jot = 0;
             for (int j = 0; j < secondWordParts.length; j++) {
-                if (i <= usedIndexesOfSecondWordParts.length - 1 && usedIndexesOfSecondWordParts[i] == -1) {
+                if (i <= usedIndexesOfSecondWordParts.length - 1) {
                     boolean mapped = false;
                     for (int k : usedIndexesOfSecondWordParts) {
                         if (k == j) {
@@ -302,29 +306,38 @@ public class WordSimilarityWS4J {
                         }
                     }
                     if (!mapped) {
-                        if (averageSemanticSimilarity <= getNormalizedSimilarityMatrix(firstWordParts[i], secondWordParts[j], false)) {
-                            averageSemanticSimilarity = getNormalizedSimilarityMatrix(firstWordParts[i], secondWordParts[j], true);
+                        if (averageSemanticSimilarity <= getNormalizedSimilarityMatrix(firstWordParts[i], secondWordParts[j], firstWordLength + secondWordLength, dummy2, false)) {
+                            averageSemanticSimilarity = getNormalizedSimilarityMatrix(firstWordParts[i], secondWordParts[j], firstWordLength + secondWordLength, dummy, true);
                             usedIndexesOfSecondWordParts[i] = j;
                             jot = j;
                         } else if (averageSemanticSimilarity == 0) {
                             averageSemanticSimilarity = 0;
                             usedIndexesOfSecondWordParts[i] = j;
                             jot = j;
+                            dummy = Arrays.asList(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
                         }
                     }
                 }
             }
-            result += ((((double) firstWordParts[i].length() + (double) secondWordParts[usedIndexesOfSecondWordParts[jot]].length()) / ((double) firstWordLength + (double) secondWordLength)) * averageSemanticSimilarity);
+
+            for (int j = 0; j < results.size(); j++) {
+                results.set(j, results.get(j) + dummy.get(j));
+                System.out.println(results.get(j));
+            }
+
+            result += ((((double) firstWordParts[i].length() + (double) secondWordParts[jot].length()) / ((double) firstWordLength + (double) secondWordLength)) * averageSemanticSimilarity);
             System.out.println("U " + i + "toj iteraciji result ima vrednost: " + result);
 
         }
+//        for (int i : usedIndexesOfSecondWordParts) {
+//        }
         return result;
     }
 
     /*
      * Returns an array of similarities on all measurments
      */
-    private static double getNormalizedSimilarityMatrix(String word1, String word2, boolean print) {
+    private static double getNormalizedSimilarityMatrix(String word1, String word2, int length, List<Double> results, boolean print) {
         double score = 0.0;
         double sum = 0.0;
         String[] a = new String[]{word1};
@@ -332,20 +345,25 @@ public class WordSimilarityWS4J {
 
 
         WS4JConfiguration.getInstance().setMFS(true);
-        for (RelatednessCalculator rc : rcs) {
-            double[][] s = rc.getNormalizedSimilarityMatrix(a, b);
-            for (int i = 0; i < s.length; i++) {
-                for (int j = 0; j < s.length; j++) {
-                    if (i == j) {
+        for (int i = 0; i < rcs.length; i++) {
+            double[][] s = rcs[i].getNormalizedSimilarityMatrix(a, b);
+            double currentV = 0;
+            for (int j = 0; j < s.length; j++) {
+                for (int k = 0; k < s.length; k++) {
+                    if (j == k) {
                         if (print == true) {
-                            System.out.println("Normalized similarity between " + word1 + " and " + word2 + " :" + rc.getClass().getName() + "\t" + s[i][j]);
+                            System.out.println("Normalized similarity between " + word1 + " and " + word2 + " :" + rcs[i].getClass().getName() + "\t" + s[j][k]);
                         }
-                        sum += s[i][j];
+                        sum += s[j][k];
+                        currentV = s[j][k];
                     }
                 }
+                double value = (((double) word1.length() + (double) word2.length()) / ((double) length)) * currentV;
+                results.set(i, value);
             }
+
         }
-        score = sum / rcs.length;
+        score = sum / (double) rcs.length;
         return score;
     }
 
@@ -381,18 +399,18 @@ public class WordSimilarityWS4J {
     public static void main(String[] args) {
 //        long t0 = System.currentTimeMillis();
 //        calculateSimilarities("swim", "drown");
-        semanticSimilaritiesWrapper("priceType", "priceSpecification");
+        semanticSimilaritiesWrapper("dayOfWeek", "hasOpeningHoursDayOfWeek");
 //        long t1 = System.currentTimeMillis();
 //        System.out.println("Done in " + (t1 - t0) + " msec.");
 //        System.out.println("Max: " + Double.MAX_VALUE);
 
 //        Resnik r = new Resnik(db);
 //        System.out.println("Relatedness of words: " + r.calcRelatednessOfWords("price", "value"));
-//        String[] a = new String[]{"price", "water", "buy", "big", "quickly", "on"};
-//        String[] b = new String[]{"value", "wet", "purchase", "large", "speedly", "upon"};
+        String[] a = new String[]{"price"}; //, "availabilityStarts", "billingIncrement", "category", "closes", "color", "condition", "description", "durationOfWarrantyInMonths", "eligibleRegions", "hasCurrency", "hasCurrencyValue", "hasCurrencyValue", "hasDUNS", "hasUnitOfMeasurement"};
+        String[] b = new String[]{"price"}; //, "availabilityStarts", "billingIncrement", "category", "closes", "color", "itemCondition", "description", "quickly", "durationOfWarranty", "eligibleRegions", "priceCurrency", "price", "duns", "unitCode"};
 //        r.getSimilarityMatrix(a, b);
-//        double[][] result = r.getNormalizedSimilarityMatrix(a, b);
-//
+        double[][] result; // = r.getNormalizedSimilarityMatrix(a, b);
+//        System.out.println("****Resnik****");
 //        for (int i = 0; i < result.length; i++) {
 //            for (int j = 0; j < result.length; j++) {
 //                if (i == j) {
@@ -402,7 +420,7 @@ public class WordSimilarityWS4J {
 //        }
 //        HirstStOnge hso = new HirstStOnge(db);
 //        result = hso.getNormalizedSimilarityMatrix(a, b);
-//
+//        System.out.println("****HirstStOnge****");
 //        for (int i = 0; i < result.length; i++) {
 //            for (int j = 0; j < result.length; j++) {
 //                if (i == j) {
@@ -412,7 +430,7 @@ public class WordSimilarityWS4J {
 //        }
 //        LeacockChodorow lc = new LeacockChodorow(db);
 //        result = lc.getNormalizedSimilarityMatrix(a, b);
-//
+//        System.out.println("****LeacockChodorow****");
 //        for (int i = 0; i < result.length; i++) {
 //            for (int j = 0; j < result.length; j++) {
 //                if (i == j) {
@@ -422,7 +440,7 @@ public class WordSimilarityWS4J {
 //        }
 //        Lesk l = new Lesk(db);
 //        result = l.getNormalizedSimilarityMatrix(a, b);
-//
+//        System.out.println("****getNormalizedSimilarityMatrix****");
 //        for (int i = 0; i < result.length; i++) {
 //            for (int j = 0; j < result.length; j++) {
 //                if (i == j) {
@@ -432,7 +450,7 @@ public class WordSimilarityWS4J {
 //        }
 //        WuPalmer wp = new WuPalmer(db);
 //        result = wp.getNormalizedSimilarityMatrix(a, b);
-//
+//        System.out.println("****WuPalmer****");
 //        for (int i = 0; i < result.length; i++) {
 //            for (int j = 0; j < result.length; j++) {
 //                if (i == j) {
@@ -442,7 +460,7 @@ public class WordSimilarityWS4J {
 //        }
 //        JiangConrath jc = new JiangConrath(db);
 //        result = jc.getNormalizedSimilarityMatrix(a, b);
-//
+//        System.out.println("****JiangConrath****");
 //        for (int i = 0; i < result.length; i++) {
 //            for (int j = 0; j < result.length; j++) {
 //                if (i == j) {
@@ -452,7 +470,7 @@ public class WordSimilarityWS4J {
 //        }
 //        Lin lin = new Lin(db);
 //        result = lin.getNormalizedSimilarityMatrix(a, b);
-//
+//        System.out.println("****Lin****");
 //        for (int i = 0; i < result.length; i++) {
 //            for (int j = 0; j < result.length; j++) {
 //                if (i == j) {
@@ -462,7 +480,7 @@ public class WordSimilarityWS4J {
 //        }
 //        Path p = new Path(db);
 //        result = p.getNormalizedSimilarityMatrix(a, b);
-//
+//        System.out.println("****Path****");
 //        for (int i = 0; i < result.length; i++) {
 //            for (int j = 0; j < result.length; j++) {
 //                if (i == j) {
@@ -470,7 +488,7 @@ public class WordSimilarityWS4J {
 //                }
 //            }
 //        }
-//
+
 //        System.out.println("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
 //        System.out.println(getNormalizedSimilarityMatrixAverage("price","value"));
     }
