@@ -29,7 +29,7 @@ public class JecaVojiDojeta {
 
                 System.out.println(firstword+"-"+secondword);
                 String result = new String();
-                if (firstword.length() >= secondword.length() || firstword.startsWith("has")|| firstword.startsWith("is") || firstword.startsWith("set") || firstword.startsWith("get")) {
+                if (firstword.startsWith("has")|| firstword.startsWith("is") || firstword.startsWith("set") || firstword.startsWith("get")|| (firstword.length() >= secondword.length()&&(!secondword.startsWith("has")||!secondword.startsWith("is")||!secondword.startsWith("set")||!secondword.startsWith("get")) ) ){
                     System.out.println("SECOND");
                     
                     
