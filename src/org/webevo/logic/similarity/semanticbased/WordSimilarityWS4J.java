@@ -399,7 +399,7 @@ public class WordSimilarityWS4J {
     public static void main(String[] args) {
 //        long t0 = System.currentTimeMillis();
 //        calculateSimilarities("swim", "drown");
-        semanticSimilaritiesWrapper("dayOfWeek", "hasOpeningHoursDayOfWeek");
+        semanticSimilaritiesWrapper("eligibleRegions", "regionsAllowed");
 //        long t1 = System.currentTimeMillis();
 //        System.out.println("Done in " + (t1 - t0) + " msec.");
 //        System.out.println("Max: " + Double.MAX_VALUE);
