@@ -1,0 +1,556 @@
+package org.webevo.logic.similarity.textbased;
+
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
+import edu.cmu.lti.lexical_db.ILexicalDatabase;
+import edu.cmu.lti.lexical_db.NictWordNet;
+import edu.cmu.lti.ws4j.RelatednessCalculator;
+import edu.cmu.lti.ws4j.impl.HirstStOnge;
+import edu.cmu.lti.ws4j.impl.JiangConrath;
+import edu.cmu.lti.ws4j.impl.LeacockChodorow;
+import edu.cmu.lti.ws4j.impl.Lesk;
+import edu.cmu.lti.ws4j.impl.Lin;
+import edu.cmu.lti.ws4j.impl.Path;
+import edu.cmu.lti.ws4j.impl.Resnik;
+import edu.cmu.lti.ws4j.impl.WuPalmer;
+import edu.cmu.lti.ws4j.util.WS4JConfiguration;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+/**
+ *
+ * @author Djordje
+ */
+public class JecaVojiDojetaWS4J {
+
+    private static ILexicalDatabase db = new NictWordNet();
+    private static RelatednessCalculator[] rcs = {
+        new HirstStOnge(db), new LeacockChodorow(db), new Lesk(db), new WuPalmer(db),
+        new Resnik(db), new JiangConrath(db), new Lin(db), new Path(db)
+    };
+
+    public static double calculateSimilarities(String word1, String word2) {
+        List<Double> results = new ArrayList<>();
+        WS4JConfiguration.getInstance().setMFS(true);
+        for (RelatednessCalculator rc : rcs) {
+            double s = rc.calcRelatednessOfWords(word1, word2);
+//            System.out.println(rc.getClass().getName() + "\t" + s);
+            // System.out.println("Similarity between " + word1 + " and " + word2 + " :" + rc.getClass().getName() + "\t" + s);
+            results.add(s);
+        }
+        double result = 0;
+        for (Double sim : results) {
+            if (sim == Double.MAX_VALUE || result == Double.MAX_VALUE) {
+                result = Double.MAX_VALUE;
+            } else {
+                result = result + sim;
+            }
+        }
+        result = result / results.size();
+        return result;
+    }
+
+    public static double calculateAverageSimilarity(String word1, String word2) {
+        List<Double> results = new ArrayList<>();
+        WS4JConfiguration.getInstance().setMFS(true);
+        for (RelatednessCalculator rc : rcs) {
+            double s = rc.calcRelatednessOfWords(word1, word2);
+//            System.out.println(rc.getClass().getName() + "\t" + s);
+            //System.out.println("Similarity between " + word1 + " and " + word2 + " :" + rc.getClass().getName() + "\t" + s);
+            results.add(s);
+        }
+        double result = 0;
+        for (Double sim : results) {
+            if (sim == Double.MAX_VALUE || result >= 1) {
+                result = 1;
+            } else {
+                result = result + (sim / Double.MAX_VALUE);
+            }
+        }
+        result = result / results.size();
+        return result;
+    }
+
+    public static double semanticSimilaritiesAverageWrapper(String firstWord, String secondWord) {
+
+        double result = 0;
+        int firstWordLength = firstWord.length();
+        int secondWordLength = secondWord.length();
+        String[] firstWordParts = firstWord.split(" ");
+        if (firstWordParts.length < 2) {
+            firstWordParts = firstWord.split("_");
+
+        }
+        String[] secondWordParts = secondWord.split(" ");
+        if (secondWordParts.length < 2) {
+            secondWordParts = secondWord.split("_");
+
+        }
+
+        if (firstWordParts.length < 2) {
+            //for ASCII letters
+//        String[] r = firstWord.split("(?=\\p{Upper})");
+            firstWordParts = firstWord.split("(?=[A-Z])");
+            //for non-ASCII letters
+            // String[] r = s.split("(?=\\p{Lu})");
+        } else {
+            firstWordLength = firstWord.length() - firstWordParts.length - 1;
+        }
+        if (secondWordParts.length < 2) {
+            secondWordParts = secondWord.split(""
+                    + "(?=[A-Z])");
+        } else {
+            secondWordLength = secondWord.length() - secondWordParts.length - 1;
+        }
+
+        String firstWordAbbreviation;
+        String secondWordAbbreviation;
+        StringBuilder firstWordAbbreviationB = new StringBuilder();
+        StringBuilder secondWordAbbreviationB = new StringBuilder();
+
+
+
+        ArrayList<String> firstWordPartsArray = capitalWord(firstWordParts, firstWordAbbreviationB);
+        ArrayList<String> secondWordPartsArray = capitalWord(secondWordParts, secondWordAbbreviationB);
+
+        firstWordAbbreviation = firstWordAbbreviationB.toString();
+        secondWordAbbreviation = secondWordAbbreviationB.toString();
+
+        firstWordParts = firstWordPartsArray.toArray(new String[firstWordPartsArray.size()]);
+        secondWordParts = secondWordPartsArray.toArray(new String[secondWordPartsArray.size()]);
+
+        //TODO - but still works. :)
+        if (firstWordAbbreviation.length() > 2) {
+            for (String part : secondWordParts) {
+                if (part.contains(firstWordAbbreviation)) {
+                    return Double.MAX_VALUE;
+                }
+            }
+        } else if (secondWordAbbreviation.length() > 2) {
+            for (String part : firstWordParts) {
+                if (part.contains(secondWordAbbreviation)) {
+                    return Double.MAX_VALUE;
+                }
+            }
+        }
+
+        int secondWordIndex = -1;
+        int[] usedIndexesOfSecondWordParts = new int[secondWordParts.length];
+        for (int i = 0; i < usedIndexesOfSecondWordParts.length; i++) {
+            usedIndexesOfSecondWordParts[i] = -1;
+        }
+
+        for (int i = 0; i < firstWordParts.length; i++) {
+            double averageSemanticSimilarity = 0;
+            int jot = 0;
+            for (int j = 0; j < secondWordParts.length; j++) {
+                if (i <= usedIndexesOfSecondWordParts.length - 1) {
+
+                    if (averageSemanticSimilarity <= getNormalizedSimilarityMatrixAverage(firstWordParts[i], secondWordParts[j])) {
+                        averageSemanticSimilarity = getNormalizedSimilarityMatrixAverage(firstWordParts[i], secondWordParts[j]);
+                        usedIndexesOfSecondWordParts[j] = i;
+                        jot = j;
+                    } else if (averageSemanticSimilarity == 0) {
+                        averageSemanticSimilarity = 0;
+                        usedIndexesOfSecondWordParts[j] = i;
+                        jot = j;
+                    }
+                }
+            }
+//            result += (((double) firstWordParts[i].length() + (double) secondWordParts[usedIndexesOfSecondWordParts[jot]].length()) / ((double) firstWordLength + (double) secondWordLength)) * (((double) averageSemanticSimilarity / ((double) firstWordParts[i].length() + (double) secondWordParts[usedIndexesOfSecondWordParts[jot]].length()) * 2.0));
+//            System.out.println(result);
+//            System.out.println((((double) firstWordParts[i].length() + (double) secondWordParts[usedIndexesOfSecondWordParts[jot]].length()) / ((double) firstWordLength + (double) secondWordLength)) * averageSemanticSimilarity);
+            result += ((((double) firstWordParts[i].length() + (double) secondWordParts[usedIndexesOfSecondWordParts[jot]].length()) / ((double) firstWordLength + (double) secondWordLength)) * averageSemanticSimilarity);
+//            System.out.println("U " + i + "toj iteraciji result ima vrednost: " + result);
+
+        }
+        return result;
+    }
+
+    private static ArrayList<String> capitalWord(String[] stringArray, StringBuilder abbreviationBuilder) {
+        ArrayList<String> newArray = new ArrayList<>();
+        StringBuilder builder = new StringBuilder();
+
+        for (int i = 0; i < stringArray.length; i++) {
+            if (stringArray[i].length() == 1) {
+                if (Character.isUpperCase(stringArray[i].charAt(0))) {
+                    builder.append(stringArray[i]);
+                    abbreviationBuilder.append(stringArray[i].toLowerCase());
+                }
+            } else {
+                if (Character.isUpperCase(stringArray[i].charAt(0))) {
+//                    if (i > 0) {
+//                        if (Character.isUpperCase(stringArray[i - 1].charAt(0))) {
+//                            builder.append(stringArray[i]);
+//                        }
+//                    }
+                    abbreviationBuilder.append(stringArray[i].toLowerCase().toCharArray()[0]);
+                    newArray.add(stringArray[i].toLowerCase());
+                } else {
+                    newArray.add(stringArray[i].toLowerCase());
+                }
+            }
+        }
+        if (!builder.toString().equals("") && builder.toString() != null) {
+            newArray.add(builder.toString());
+        }
+        return newArray;
+    }
+
+    private static double getNormalizedSimilarityMatrixAverage(String word1, String word2) {
+        double score = 0.0;
+        double sum = 0.0;
+        String[] a = new String[]{word1};
+        String[] b = new String[]{word2};
+
+
+        WS4JConfiguration.getInstance().setMFS(true);
+        for (RelatednessCalculator rc : rcs) {
+            double[][] s = rc.getNormalizedSimilarityMatrix(a, b);
+            for (int i = 0; i < s.length; i++) {
+                for (int j = 0; j < s.length; j++) {
+                    if (i == j) {
+                        sum += s[i][j];
+                    }
+                }
+            }
+        }
+        score = sum / rcs.length;
+        return score;
+    }
+
+    public static double semanticSimilaritiesWrapper(String firstWord, String secondWord, List<Double> results) {
+
+        double result = 0;
+        int firstWordLength = firstWord.length();
+        int secondWordLength = secondWord.length();
+        String[] firstWordParts = firstWord.split(" ");
+        if (firstWordParts.length < 2) {
+            firstWordParts = firstWord.split("_");
+
+        }
+        String[] secondWordParts = secondWord.split(" ");
+        if (secondWordParts.length < 2) {
+            secondWordParts = secondWord.split("_");
+
+        }
+
+        if (firstWordParts.length < 2) {
+            //for ASCII letters
+//        String[] r = firstWord.split("(?=\\p{Upper})");
+            firstWordParts = firstWord.split("(?=[A-Z])");
+            //for non-ASCII letters
+            // String[] r = s.split("(?=\\p{Lu})");
+        } else {
+            //proveri cemu ovo sluzi.
+            firstWordLength = firstWord.length() - firstWordParts.length - 1;
+        }
+        if (secondWordParts.length < 2) {
+            secondWordParts = secondWord.split(""
+                    + "(?=[A-Z])");
+        } else {
+            secondWordLength = secondWord.length() - secondWordParts.length - 1;
+        }
+
+        String firstWordAbbreviation;
+        String secondWordAbbreviation;
+        StringBuilder firstWordAbbreviationB = new StringBuilder();
+        StringBuilder secondWordAbbreviationB = new StringBuilder();
+
+
+
+        ArrayList<String> firstWordPartsArray = capitalWord(firstWordParts, firstWordAbbreviationB);
+        ArrayList<String> secondWordPartsArray = capitalWord(secondWordParts, secondWordAbbreviationB);
+
+        firstWordAbbreviation = firstWordAbbreviationB.toString();
+        secondWordAbbreviation = secondWordAbbreviationB.toString();
+
+        firstWordParts = firstWordPartsArray.toArray(new String[firstWordPartsArray.size()]);
+        secondWordParts = secondWordPartsArray.toArray(new String[secondWordPartsArray.size()]);
+
+        //TODO - but still works. :)
+        if (firstWordAbbreviation.length() > 2) {
+            for (String part : secondWordParts) {
+                if (part.contains(firstWordAbbreviation)) {
+                    return 1;
+                }
+            }
+        } else if (secondWordAbbreviation.length() > 2) {
+            for (String part : firstWordParts) {
+                if (part.contains(secondWordAbbreviation)) {
+                    return 1;
+                }
+            }
+        }
+
+        int secondWordIndex = -1;
+        int[] usedIndexesOfSecondWordParts = new int[secondWordParts.length];
+        for (int i = 0; i < usedIndexesOfSecondWordParts.length; i++) {
+            usedIndexesOfSecondWordParts[i] = -1;
+        }
+
+        for (int i = 0; i < firstWordParts.length; i++) {
+            List<Double> dummy = Arrays.asList(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+            List<Double> dummy2 = Arrays.asList(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+            double averageSemanticSimilarity = 0;
+            int jot = 0;
+            for (int j = 0; j < secondWordParts.length; j++) {
+                if (i <= usedIndexesOfSecondWordParts.length - 1) {
+                    boolean mapped = false;
+                    for (int k : usedIndexesOfSecondWordParts) {
+                        if (k == j) {
+                            mapped = true;
+                        }
+                    }
+                    if (!mapped) {
+                        if (averageSemanticSimilarity <= getNormalizedSimilarityMatrix(firstWordParts[i], secondWordParts[j], firstWordLength + secondWordLength, dummy2, false)) {
+                            averageSemanticSimilarity = getNormalizedSimilarityMatrix(firstWordParts[i], secondWordParts[j], firstWordLength + secondWordLength, dummy, true);
+                            usedIndexesOfSecondWordParts[i] = j;
+                            jot = j;
+                        } else if (averageSemanticSimilarity == 0) {
+                            averageSemanticSimilarity = 0;
+                            usedIndexesOfSecondWordParts[i] = j;
+                            jot = j;
+                            dummy = Arrays.asList(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+                        }
+                    }
+                }
+            }
+
+            for (int j = 0; j < results.size(); j++) {
+                results.set(j, results.get(j) + dummy.get(j));
+      //          System.out.println(results.get(j));
+            }
+
+            result += ((((double) firstWordParts[i].length() + (double) secondWordParts[jot].length()) / ((double) firstWordLength + (double) secondWordLength)) * averageSemanticSimilarity);
+//            System.out.println("U " + i + "toj iteraciji result ima vrednost: " + result);
+
+        }
+//        for (int i : usedIndexesOfSecondWordParts) {
+//        }
+        return result;
+    }
+
+    /*
+     * Returns an array of similarities on all measurments
+     */
+    private static double getNormalizedSimilarityMatrix(String word1, String word2, int length, List<Double> results, boolean print) {
+        double score = 0.0;
+        double sum = 0.0;
+        String[] a = new String[]{word1};
+        String[] b = new String[]{word2};
+
+
+        WS4JConfiguration.getInstance().setMFS(true);
+        for (int i = 0; i < rcs.length; i++) {
+            double[][] s = rcs[i].getNormalizedSimilarityMatrix(a, b);
+            double currentV = 0;
+            for (int j = 0; j < s.length; j++) {
+                for (int k = 0; k < s.length; k++) {
+                    if (j == k) {
+                        if (print == true) {
+                            //  System.out.println("Normalized similarity between " + word1 + " and " + word2 + " :" + rcs[i].getClass().getName() + "\t" + s[j][k]);
+                        }
+                        sum += s[j][k];
+                        currentV = s[j][k];
+                    }
+                }
+                double value = (((double) word1.length() + (double) word2.length()) / ((double) length)) * currentV;
+                results.set(i, value);
+            }
+
+        }
+        score = sum / (double) rcs.length;
+        return score;
+    }
+
+//    public static double calculateAndSaveSimilarities(String word1, String word2, String fileName) throws FileNotFoundException {
+//        List<Double> results = new ArrayList<>();
+//        File file = new File(fileName);
+//        PrintWriter out = new PrintWriter(new OutputStreamWriter(new FileOutputStream(file)));
+//        WS4JConfiguration.getInstance().setMFS(true);
+//        for (RelatednessCalculator rc : rcs) {
+//            double s = rc.calcRelatednessOfWords(word1, word2);
+//            System.out.println(rc.getClass().getName() + "\t" + s);
+//            out.write("Similarity between " + word1 + " and " + word2 + " :" + rc.getClass().getName() + "\t" + s);
+//            results.add(s);
+//        }
+//        double result = 0;
+//        for (Double sim : results) {
+//            result = result + sim;
+//        }
+//        result = result / results.size();
+//        return result;
+//    }
+    public static double calculateThreshold(ArrayList<String> DBPediaWords, ArrayList<String> SchemaWords) {
+        double treshold = 0;
+        for (String DBPediaWord : DBPediaWords) {
+            for (String SchemaWord : SchemaWords) {
+                treshold = treshold + calculateSimilarities(DBPediaWord, SchemaWord);
+            }
+        }
+        treshold = treshold / (DBPediaWords.size() * SchemaWords.size());
+        return treshold;
+    }
+
+    public static void main(String[] args) {
+//        long t0 = System.currentTimeMillis();
+//        calculateSimilarities("swim", "drown");
+        String finalRes = new String();
+       // List<String> flist = Arrays.asList("amountOfThisGood", "availabilityEnds", "availabilityStarts", "billingIncrement", "category", "closes", "color", "condition", "datatypeProductOrServiceProperty", "description", "durationOfWarrantyInMonths", "eligibleRegions", "hasCurrency", "hasCurrencyValue", "hasDUNS", "hasEAN_UCC-13", "hasGlobalLocationNumber", "hasGTIN-14", "hasGTIN-8", "hasISICv4", "hasMaxCurrencyValue", "hasMaxValue", "hasMaxValueFloat", "hasMaxValueInteger", "hasMinCurrencyValue", "hasMinValue", "hasMinValueFloat", "hasMinValueInteger", "hasMPN", "hasNAICS", "hasStockKeepingUnit", "hasUnitOfMeasurement", "hasValue", "hasValueFloat", "hasValueInteger", "legalName", "name", "opens", "priceType", "serialNumber", "taxID", "validThrough", "valueAddedTaxIncluded", "vatID", "acceptedPaymentMethods", "addOn", "advanceBookingRequirement", "appliesToDeliveryMethod", "appliesToPaymentMethod", "availableAtOrFrom", "availableDeliveryMethods", "deliveryLeadTime", "depth", "eligibleCustomerTypes", "eligibleDuration", "eligibleTransactionVolume", "equal", "greater", "greaterOrEqual", "hasBrand", "hasBusinessFunction", "hasEligibleQuantity", "hasInventoryLevel", "hasMakeAndModel", "hasManufacturer", "hasNext", "hasOpeningHoursDayOfWeek", "hasOpeningHoursSpecification", "hasPOS", "hasPrevious", "hasPriceSpecification", "hasWarrantyPromise", "hasWarrantyScope", "height", "includes", "includesObject", "isAccessoryOrSparePartFor", "isConsumableFor", "isSimilarTo", "isVariantOf", "lesser", "lesserOrEqual", "nonEqual", "offers", "owns", "predecessorOf", "qualitativeProductOrServiceProperty", "quantitativeProductOrServiceProperty", "seeks", "successorOf", "typeOfGood", "valueReference", "weight");
+       // List<String> slist = Arrays.asList("aggregateRating", "brand", "color", "depth", "gtin13", "gtin14", "gtin8", "height", "isAccessoryOrSparePartFor", "isConsumableFor", "thing", "isSimilarTo", "itemCondition", "logo", "manufacturer", "model", "mpn", "offers", "productID", "releaseDate", "review", "reviews", "sku", "weight", "width", "eligibleQuantity", "eligibleTransactionVolume", "maxPrice", "minPrice", "price", "priceCurrency", "validFrom", "validThrough", "valueAddedTaxIncluded", "acceptedPaymentMethod", "addOn", "advanceBookingRequirement", "aggregateRating", "availability", "availabilityEnds", "availabilityStarts", "availableDeliveryMethod", "businessFunction", "category", "deliveryLeadTime", "eligibleCustomerType", "eligibleDuration", "eligibleQuantity", "eligibleRegion", "eligibleTransactionVolume", "includesObject", "inventoryLevel", "itemCondition", "itemOffered", "mpn", "price", "priceCurrency", "priceSpecification", "priceValidUntil", "review", "reviews", "seller", "serialNumber", "sku", "validFrom", "validThrough", "warranty", "highPrice", "lowPrice", "offerCount", "isVariantOf", "predecessorOf", "successorOf", "amountOfThisGood", "businessFunction", "typeOfGood", "unitCode", "closes", "dayOfWeek", "opens", "validFrom", "validThrough", "billingIncrement", "priceType", "unitCode", "appliesToDeliveryMethod", "appliesToPaymentMethod", "additionalType", "description", "image", "name", "url", "description");
+
+        List<String> flist = Arrays.asList("hasCurrencyValue","hasMaxCurrencyValue","hasMinCurrencyValue","hasValue","validThrough","hasOpeningHoursDayOfWeek","hasWarrantyScope","includes","owns","hasNAICS","legalName","serialNumber","validFrom");
+List<String> slist = Arrays.asList("priceCurrency","maxValue","minValue","price","expires","opens","durationOfWarranty","includedRiskFactor","ownedFrom","manufacturer","name","productID","availableAtOrFrom");
+        
+// List<String> flist = Arrays.asList("amountOfThisGood", "availabilityEnds");
+//        List<String> slist = Arrays.asList("aggregateRating", "brand" );
+
+
+        for (int i = 0; i < slist.size(); i++) {
+            String secondword = slist.get(i);
+            String firstword = flist.get(i);
+
+            System.out.println(firstword + "-" + secondword);
+            String result = new String();
+            if (firstword.startsWith("has") || firstword.startsWith("is") || firstword.startsWith("set") || firstword.startsWith("get") || (firstword.length() >= secondword.length() && (!secondword.startsWith("has") || !secondword.startsWith("is") || !secondword.startsWith("set") || !secondword.startsWith("get")))) {
+                System.out.println("SECOND");
+                List<Double> results = Arrays.asList(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+                
+                semanticSimilaritiesWrapper(secondword, firstword, results);
+                //System.out.println("RESULTS");
+                for (int j = 0; j < results.size(); j++) {
+                    Double double1 = results.get(j);
+                    if (j == results.size() - 1) {
+                        finalRes += (double1 + "\n");
+                    } else {
+                        finalRes += (double1 + ";");
+                    }
+                }
+
+                //System.out.println(result);
+
+            } else {
+                System.out.println("FIRST");
+                List<Double> results = Arrays.asList(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+                semanticSimilaritiesWrapper(firstword, secondword, results);
+                //System.out.println("RESULTS");
+                for (int j = 0; j < results.size(); j++) {
+                    Double double1 = results.get(j);
+                    if (j == results.size() - 1) {
+                        finalRes += (double1 + "\n");
+                    } else {
+                        finalRes += (double1 + ";");
+                    }
+
+
+                }
+
+                //System.out.println(result);
+            }
+
+
+        }
+
+
+
+
+
+
+        System.out.println(finalRes);
+//        long t1 = System.currentTimeMillis();
+//        System.out.println("Done in " + (t1 - t0) + " msec.");
+//        System.out.println("Max: " + Double.MAX_VALUE);
+
+//        Resnik r = new Resnik(db);
+//        System.out.println("Relatedness of words: " + r.calcRelatednessOfWords("price", "value"));
+        String[] a = new String[]{"price"}; //, "availabilityStarts", "billingIncrement", "category", "closes", "color", "condition", "description", "durationOfWarrantyInMonths", "eligibleRegions", "hasCurrency", "hasCurrencyValue", "hasCurrencyValue", "hasDUNS", "hasUnitOfMeasurement"};
+        String[] b = new String[]{"price"}; //, "availabilityStarts", "billingIncrement", "category", "closes", "color", "itemCondition", "description", "quickly", "durationOfWarranty", "eligibleRegions", "priceCurrency", "price", "duns", "unitCode"};
+//        r.getSimilarityMatrix(a, b);
+        double[][] result; // = r.getNormalizedSimilarityMatrix(a, b);
+//        System.out.println("****Resnik****");
+//        for (int i = 0; i < result.length; i++) {
+//            for (int j = 0; j < result.length; j++) {
+//                if (i == j) {
+//                    System.out.println(result[i][j]);
+//                }
+//            }
+//        }
+//        HirstStOnge hso = new HirstStOnge(db);
+//        result = hso.getNormalizedSimilarityMatrix(a, b);
+//        System.out.println("****HirstStOnge****");
+//        for (int i = 0; i < result.length; i++) {
+//            for (int j = 0; j < result.length; j++) {
+//                if (i == j) {
+//                    System.out.println(result[i][j]);
+//                }
+//            }
+//        }
+//        LeacockChodorow lc = new LeacockChodorow(db);
+//        result = lc.getNormalizedSimilarityMatrix(a, b);
+//        System.out.println("****LeacockChodorow****");
+//        for (int i = 0; i < result.length; i++) {
+//            for (int j = 0; j < result.length; j++) {
+//                if (i == j) {
+//                    System.out.println(result[i][j]);
+//                }
+//            }
+//        }
+//        Lesk l = new Lesk(db);
+//        result = l.getNormalizedSimilarityMatrix(a, b);
+//        System.out.println("****getNormalizedSimilarityMatrix****");
+//        for (int i = 0; i < result.length; i++) {
+//            for (int j = 0; j < result.length; j++) {
+//                if (i == j) {
+//                    System.out.println(result[i][j]);
+//                }
+//            }
+//        }
+//        WuPalmer wp = new WuPalmer(db);
+//        result = wp.getNormalizedSimilarityMatrix(a, b);
+//        System.out.println("****WuPalmer****");
+//        for (int i = 0; i < result.length; i++) {
+//            for (int j = 0; j < result.length; j++) {
+//                if (i == j) {
+//                    System.out.println(result[i][j]);
+//                }
+//            }
+//        }
+//        JiangConrath jc = new JiangConrath(db);
+//        result = jc.getNormalizedSimilarityMatrix(a, b);
+//        System.out.println("****JiangConrath****");
+//        for (int i = 0; i < result.length; i++) {
+//            for (int j = 0; j < result.length; j++) {
+//                if (i == j) {
+//                    System.out.println(result[i][j]);
+//                }
+//            }
+//        }
+//        Lin lin = new Lin(db);
+//        result = lin.getNormalizedSimilarityMatrix(a, b);
+//        System.out.println("****Lin****");
+//        for (int i = 0; i < result.length; i++) {
+//            for (int j = 0; j < result.length; j++) {
+//                if (i == j) {
+//                    System.out.println(result[i][j]);
+//                }
+//            }
+//        }
+//        Path p = new Path(db);
+//        result = p.getNormalizedSimilarityMatrix(a, b);
+//        System.out.println("****Path****");
+//        for (int i = 0; i < result.length; i++) {
+//            for (int j = 0; j < result.length; j++) {
+//                if (i == j) {
+//                    System.out.println(result[i][j]);
+//                }
+//            }
+//        }
+
+//        System.out.println("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
+//        System.out.println(getNormalizedSimilarityMatrixAverage("price","value"));
+    }
+}
