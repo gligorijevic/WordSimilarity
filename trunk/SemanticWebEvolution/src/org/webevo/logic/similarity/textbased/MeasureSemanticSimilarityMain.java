@@ -24,7 +24,7 @@ import java.util.List;
  *
  * @author Djordje
  */
-public class JecaVojiDojetaWS4J {
+public class MeasureSemanticSimilarityMain {
 
     private static ILexicalDatabase db = new NictWordNet();
     private static RelatednessCalculator[] rcs = {

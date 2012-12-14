@@ -180,7 +180,7 @@ public class WordSimilarityWS4J {
                     builder.append(stringArray[i]);
                     abbreviationBuilder.append(stringArray[i].toLowerCase());
                 }
-            } else {
+            } else if (stringArray[i].length() > 0)  {
                 if (Character.isUpperCase(stringArray[i].charAt(0))) {
 //                    if (i > 0) {
 //                        if (Character.isUpperCase(stringArray[i - 1].charAt(0))) {
@@ -334,6 +334,118 @@ public class WordSimilarityWS4J {
         return result;
     }
 
+    public static double semanticSimilaritiesWrapper2(String firstWord, String secondWord, List<Double> results) {
+
+        double result = 0;
+        int firstWordLength = firstWord.length();
+        int secondWordLength = secondWord.length();
+        String[] firstWordParts = firstWord.split(" ");
+        if (firstWordParts.length < 2) {
+            firstWordParts = firstWord.split("_");
+
+        }
+        String[] secondWordParts = secondWord.split(" ");
+        if (secondWordParts.length < 2) {
+            secondWordParts = secondWord.split("_");
+
+        }
+
+        if (firstWordParts.length < 2) {
+            //for ASCII letters
+//        String[] r = firstWord.split("(?=\\p{Upper})");
+            firstWordParts = firstWord.split("(?=[A-Z])");
+            //for non-ASCII letters
+            // String[] r = s.split("(?=\\p{Lu})");
+        } else {
+            //proveri cemu ovo sluzi.
+            firstWordLength = firstWord.length() - firstWordParts.length - 1;
+        }
+        if (secondWordParts.length < 2) {
+            secondWordParts = secondWord.split(""
+                    + "(?=[A-Z])");
+        } else {
+            secondWordLength = secondWord.length() - secondWordParts.length - 1;
+        }
+
+        String firstWordAbbreviation;
+        String secondWordAbbreviation;
+        StringBuilder firstWordAbbreviationB = new StringBuilder();
+        StringBuilder secondWordAbbreviationB = new StringBuilder();
+
+
+
+        ArrayList<String> firstWordPartsArray = capitalWord(firstWordParts, firstWordAbbreviationB);
+        ArrayList<String> secondWordPartsArray = capitalWord(secondWordParts, secondWordAbbreviationB);
+
+        firstWordAbbreviation = firstWordAbbreviationB.toString();
+        secondWordAbbreviation = secondWordAbbreviationB.toString();
+
+        firstWordParts = firstWordPartsArray.toArray(new String[firstWordPartsArray.size()]);
+        secondWordParts = secondWordPartsArray.toArray(new String[secondWordPartsArray.size()]);
+
+        //TODO - but still works. :)
+        if (firstWordAbbreviation.length() > 2) {
+            for (String part : secondWordParts) {
+                if (part.contains(firstWordAbbreviation)) {
+                    return 1;
+                }
+            }
+        } else if (secondWordAbbreviation.length() > 2) {
+            for (String part : firstWordParts) {
+                if (part.contains(secondWordAbbreviation)) {
+                    return 1;
+                }
+            }
+        }
+
+        int secondWordIndex = -1;
+        int[] usedIndexesOfSecondWordParts = new int[secondWordParts.length];
+        for (int i = 0; i < usedIndexesOfSecondWordParts.length; i++) {
+            usedIndexesOfSecondWordParts[i] = -1;
+        }
+
+        for (int i = 0; i < firstWordParts.length; i++) {
+            List<Double> dummy = Arrays.asList(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+            List<Double> dummy2 = Arrays.asList(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+            double averageSemanticSimilarity = 0;
+            int jot = 0;
+            for (int j = 0; j < secondWordParts.length; j++) {
+                if (i <= usedIndexesOfSecondWordParts.length - 1) {
+                    boolean mapped = false;
+                    for (int k : usedIndexesOfSecondWordParts) {
+                        if (k == j) {
+                            mapped = true;
+                        }
+                    }
+                    if (!mapped) {
+                        if (averageSemanticSimilarity <= getNormalizedSimilarityMatrix(firstWordParts[i], secondWordParts[j], firstWordLength + secondWordLength, dummy2, false)) {
+                            averageSemanticSimilarity = getNormalizedSimilarityMatrix(firstWordParts[i], secondWordParts[j], firstWordLength + secondWordLength, dummy, true);
+                            usedIndexesOfSecondWordParts[i] = j;
+                            jot = j;
+                        } else if (averageSemanticSimilarity == 0) {
+                            averageSemanticSimilarity = 0;
+                            usedIndexesOfSecondWordParts[i] = j;
+                            jot = j;
+                            dummy = Arrays.asList(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+                        }
+                    }
+                }
+            }
+
+            for (int j = 0; j < results.size(); j++) {
+                results.set(j, results.get(j) + dummy.get(j));
+                //          System.out.println(results.get(j));
+            }
+
+            result += ((((double) firstWordParts[i].length() + (double) secondWordParts[jot].length()) / ((double) firstWordLength + (double) secondWordLength)) * averageSemanticSimilarity);
+//            System.out.println("U " + i + "toj iteraciji result ima vrednost: " + result);
+
+        }
+//        for (int i : usedIndexesOfSecondWordParts) {
+//        }
+        return result;
+    }
+
     /*
      * Returns an array of similarities on all measurments
      */
@@ -352,7 +464,7 @@ public class WordSimilarityWS4J {
                 for (int k = 0; k < s.length; k++) {
                     if (j == k) {
                         if (print == true) {
-                            System.out.println("Normalized similarity between " + word1 + " and " + word2 + " :" + rcs[i].getClass().getName() + "\t" + s[j][k]);
+//                            System.out.println("Normalized similarity between " + word1 + " and " + word2 + " :" + rcs[i].getClass().getName() + "\t" + s[j][k]);
                         }
                         sum += s[j][k];
                         currentV = s[j][k];
@@ -399,7 +511,7 @@ public class WordSimilarityWS4J {
     public static void main(String[] args) {
 //        long t0 = System.currentTimeMillis();
 //        calculateSimilarities("swim", "drown");
-        semanticSimilaritiesWrapper("eligibleRegions", "regionsAllowed");
+        semanticSimilaritiesWrapper("brand", "availabilityEnds");
 //        long t1 = System.currentTimeMillis();
 //        System.out.println("Done in " + (t1 - t0) + " msec.");
 //        System.out.println("Max: " + Double.MAX_VALUE);
