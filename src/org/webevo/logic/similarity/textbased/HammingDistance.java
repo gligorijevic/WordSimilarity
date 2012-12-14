@@ -84,5 +84,6 @@ public class HammingDistance {
 
     public static void main(String[] args) {
         System.out.println(getHammingDistance("comment", "commentText"));
+        System.out.println(getHammingDistance("comment", "commentText"));
     }
 }

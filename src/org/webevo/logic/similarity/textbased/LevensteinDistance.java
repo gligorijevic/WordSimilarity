@@ -226,7 +226,7 @@ public class LevensteinDistance {
             }
             double d = ((double) firstWordParts[i].length() + (double) secondWordParts[usedIndexesOfSecondWordParts[jot]].length()) / ((double) firstWordLength + (double) secondWordLength);
             result += (double) calcualtedDistance * d;
-            System.out.println("U " + i + "toj iteraciji levenstein distance ima vrednost: " + result);
+//            System.out.println("U " + i + "toj iteraciji levenstein distance ima vrednost: " + result);
         }
         //proveri da li ima viska reci!
         long resultLong = Math.round(result);
@@ -243,7 +243,7 @@ public class LevensteinDistance {
                     builder.append(stringArray[i]);
                     abbreviationBuilder.append(stringArray[i].toLowerCase());
                 }
-            } else {
+            } else if (stringArray[i].length() > 0) {
                 if (Character.isUpperCase(stringArray[i].charAt(0))) {
 //                    if (i > 0) {
 //                        if (Character.isUpperCase(stringArray[i - 1].charAt(0))) {

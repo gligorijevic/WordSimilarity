@@ -171,7 +171,7 @@ public class SoundexImplementation {
             }
             double d = ((double) firstWordParts[i].length() + (double) secondWordParts[usedIndexesOfSecondWordParts[jot]].length()) / ((double) firstWordLength + (double) secondWordLength);
             resultSimilarity += ((double) measuresSoundexSimilarity) * d;
-            System.out.println("U " + i + "toj iteraciji result ima vrednost: " + resultSimilarity);
+//            System.out.println("U " + i + "toj iteraciji result ima vrednost: " + resultSimilarity);
         }
         long result = Math.round(resultSimilarity);
         return result;
@@ -188,7 +188,7 @@ public class SoundexImplementation {
                     builder.append(stringArray[i]);
                     abbreviationBuilder.append(stringArray[i].toLowerCase());
                 }
-            } else {
+            } else if (stringArray[i].length() > 0) {
                 if (Character.isUpperCase(stringArray[i].charAt(0))) {
 //                    if (i > 0) {
 //                        if (Character.isUpperCase(stringArray[i - 1].charAt(0))) {

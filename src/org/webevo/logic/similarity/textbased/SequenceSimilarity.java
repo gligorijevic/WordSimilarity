@@ -118,15 +118,10 @@ public class SequenceSimilarity {
 //            System.out.println(a / b * c / d * 2);
 //            result += a / b * c / d * 2;
             result += (((double) firstWordParts[i].length() + (double) secondWordParts[jot].length()) / ((double) firstWordLength + (double) secondWordLength)) * (((double) longestSequence / ((double) firstWordParts[i].length() + (double) secondWordParts[jot].length()) * 2.0));
-            System.out.println("U " + i + "toj iteraciji result ima vrednost: " + result);
+//            System.out.println("U " + i + "toj iteraciji result ima vrednost: " + result);
 
 
         }
-
-
-
-
-
 
         return result;
 
@@ -253,7 +248,7 @@ public class SequenceSimilarity {
                     builder.append(stringArray[i]);
                     abbreviationBuilder.append(stringArray[i].toLowerCase());
                 }
-            } else {
+            } else if (stringArray[i].length() > 0) {
                 if (Character.isUpperCase(stringArray[i].charAt(0))) {
 //                    if (i > 0) {
 //                        if (Character.isUpperCase(stringArray[i - 1].charAt(0))) {
@@ -274,8 +269,8 @@ public class SequenceSimilarity {
     }
 
     public static void main(String[] args) {
-        String a = "value";
-        String b = "hasValue";
+        String a = "regionsAllowed";
+        String b = "eligibleRegions";
 
 //        System.out.println(score(a, b));
 //        System.out.println(lcs(a, b));

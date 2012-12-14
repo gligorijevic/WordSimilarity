@@ -15,7 +15,7 @@ import org.apache.commons.codec.EncoderException;
  *
  * @author Jelena
  */
-public class JecaVojiDojeta {
+public class MeasureSintaxSimilarityMain {
 
     public static void main(String[] args) {
         try {
@@ -66,7 +66,7 @@ public class JecaVojiDojeta {
             System.out.println("FINAL:");
             System.out.println(finalResult);
         } catch (EncoderException ex) {
-            Logger.getLogger(JecaVojiDojeta.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(MeasureSintaxSimilarityMain.class.getName()).log(Level.SEVERE, null, ex);
         }
 
     }
