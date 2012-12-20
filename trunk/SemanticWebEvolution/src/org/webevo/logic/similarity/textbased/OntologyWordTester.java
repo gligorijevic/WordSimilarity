@@ -81,7 +81,7 @@ public class OntologyWordTester {
                 }
                 System.out.println(firstword + "-" + secondword);
                 String result = new String();
-                if (firstword.startsWith("has") || firstword.startsWith("is") || firstword.startsWith("set") || firstword.startsWith("get") || (firstword.length() >= secondword.length() && (!secondword.startsWith("has") || !secondword.startsWith("is") || !secondword.startsWith("set") || !secondword.startsWith("get")))) {
+                if (firstword.startsWith("has") || firstword.startsWith("is") || firstword.startsWith("set") || firstword.startsWith("get") || firstword.startsWith("in")|| (firstword.length() >= secondword.length() && (!secondword.startsWith("has") || !secondword.startsWith("is") || !secondword.startsWith("set") || !secondword.startsWith("get") || !secondword.startsWith("in")))) {
 //                    System.out.println("SECOND");
                     result += firstword + "-" + secondword + ";";
                     result += LevensteinDistance.computeDistance(secondword, firstword) + ";";
@@ -124,7 +124,7 @@ public class OntologyWordTester {
             Logger.getLogger(OntologyWordTester.class.getName()).log(Level.SEVERE, null, ex);
         }
 
-        for (int i = 9; i < firstOntologyProperties.size(); i++) {
+        for (int i = 188; i < firstOntologyProperties.size(); i++) {
             System.out.println("Index of last word mapped is: " + i);
             for (int j = 0; j < secondOntologyProperties.size(); j++) {
 
@@ -132,7 +132,7 @@ public class OntologyWordTester {
                 String firstword = firstOntologyProperties.get(i);
 
                 System.out.println(firstword + "-" + secondword);
-                if (firstword.startsWith("has") || firstword.startsWith("is") || firstword.startsWith("set") || firstword.startsWith("get") || (firstword.length() >= secondword.length() && (!secondword.startsWith("has") || !secondword.startsWith("is") || !secondword.startsWith("set") || !secondword.startsWith("get")))) {
+                if (firstword.startsWith("has") || firstword.startsWith("is") || firstword.startsWith("set") || firstword.startsWith("get") || firstword.startsWith("in") || (firstword.length() >= secondword.length() && (!secondword.startsWith("has") || !secondword.startsWith("is") || !secondword.startsWith("set") || !secondword.startsWith("get")))) {
 //                    System.out.println("SECOND");
                     List<Double> results = Arrays.asList(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
 
@@ -184,7 +184,7 @@ public class OntologyWordTester {
 
     public static void main(String[] args) {
         try {
-            getWordsData("C:\\Users\\gligo_000\\Desktop\\FON\\Diplomski\\Word similarity\\dbpedia-owl.txt");
+            getWordsData("C:\\Users\\gligo_000\\Desktop\\FON\\Diplomski\\Word similarity related work\\dbpedia-owl.txt");
 //            measureSintaxSimilarities();
             measureSemanticSimilarity();
 
@@ -196,3 +196,4 @@ public class OntologyWordTester {
         }
     }
 }
+         
