@@ -55,7 +55,7 @@ public class OntologyWordTester {
         in.close();
         fileIn.close();
         System.out.println("File schemaorgallproperties.out was loaded successfully");
-//        int ii = 0;
+//        int ii = 0;od 
 //        for (int i = 0; i < secondOntologyProperties.size(); i++) {
 //            if (secondOntologyProperties.get(i).contains("/")) {
 //                String[] array = secondOntologyProperties.get(i).split("/");
@@ -77,11 +77,11 @@ public class OntologyWordTester {
                 String secondword = secondOntologyProperties.get(j);
                 String firstword = firstOntologyProperties.get(i);
                 if (secondword.contains("/")) {
-                    secondword = secondword.substring(0, secondword.indexOf("/"));
+                    secondword = secondword.substring(secondword.lastIndexOf("/") + 1);
                 }
                 System.out.println(firstword + "-" + secondword);
                 String result = new String();
-                if (firstword.startsWith("has") || firstword.startsWith("is") || firstword.startsWith("set") || firstword.startsWith("get") || firstword.startsWith("in")|| (firstword.length() >= secondword.length() && (!secondword.startsWith("has") || !secondword.startsWith("is") || !secondword.startsWith("set") || !secondword.startsWith("get") || !secondword.startsWith("in")))) {
+                if (firstword.startsWith("has") || firstword.startsWith("is") || firstword.startsWith("set") || firstword.startsWith("get") || firstword.startsWith("in") || (firstword.length() >= secondword.length() && (!secondword.startsWith("has") || !secondword.startsWith("is") || !secondword.startsWith("set") || !secondword.startsWith("get") || !secondword.startsWith("in")))) {
 //                    System.out.println("SECOND");
                     result += firstword + "-" + secondword + ";";
                     result += LevensteinDistance.computeDistance(secondword, firstword) + ";";
@@ -103,10 +103,12 @@ public class OntologyWordTester {
                 }
                 finalResult += result;
             }
+            finalResult += "\n";
+
         }
         PrintWriter writer = null;
         try {
-            writer = new PrintWriter(new File("C:/Users/gligo_000/desktop/sintaxsimilaritylog.txt"));
+            writer = new PrintWriter(new File("C:/Users/gligo_000/desktop/sintaxsimilaritylog_popravka.txt"));
         } catch (FileNotFoundException ex) {
             Logger.getLogger(OntologyWordTester.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -119,17 +121,20 @@ public class OntologyWordTester {
         String finalRes = new String();
         PrintWriter writer = null;
         try {
-            writer = new PrintWriter(new FileOutputStream(new File("C:/Users/gligo_000/desktop/semanticsimilaritylog.txt"), true));
+            writer = new PrintWriter(new FileOutputStream(new File("C:/Users/gligo_000/desktop/semanticsimilaritylog_popravka.txt"), true));
         } catch (FileNotFoundException ex) {
             Logger.getLogger(OntologyWordTester.class.getName()).log(Level.SEVERE, null, ex);
         }
 
-        for (int i = 188; i < firstOntologyProperties.size(); i++) {
+        for (int i = 0; i < firstOntologyProperties.size(); i++) {
             System.out.println("Index of last word mapped is: " + i);
             for (int j = 0; j < secondOntologyProperties.size(); j++) {
 
                 String secondword = secondOntologyProperties.get(j);
                 String firstword = firstOntologyProperties.get(i);
+                if (secondword.contains("/")) {
+                    secondword = secondword.substring(secondword.lastIndexOf("/") + 1);
+                }
 
                 System.out.println(firstword + "-" + secondword);
                 if (firstword.startsWith("has") || firstword.startsWith("is") || firstword.startsWith("set") || firstword.startsWith("get") || firstword.startsWith("in") || (firstword.length() >= secondword.length() && (!secondword.startsWith("has") || !secondword.startsWith("is") || !secondword.startsWith("set") || !secondword.startsWith("get")))) {
@@ -174,17 +179,20 @@ public class OntologyWordTester {
                     //System.out.println(result);
                 }
             }
+            writer.print("\n");
+            writer.flush();
         }
         System.out.println(finalRes);
+
 
 //        writer.println(finalRes);
 //        writer.close();
         return finalRes;
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws EncoderException {
         try {
-            getWordsData("C:\\Users\\gligo_000\\Desktop\\FON\\Diplomski\\Word similarity related work\\dbpedia-owl.txt");
+            getWordsData("C:\\Users\\gligo_000\\Desktop\\FON\\Diplomski\\Word similarity related work\\popravka.txt");
 //            measureSintaxSimilarities();
             measureSemanticSimilarity();
 
@@ -196,4 +204,3 @@ public class OntologyWordTester {
         }
     }
 }
-         
